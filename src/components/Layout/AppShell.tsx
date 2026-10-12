@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { Menu, Sprout, X } from 'lucide-react';
 
 export function AppShell() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const [collapsed, setCollapsed] = useState(() => {
     try {
@@ -61,7 +63,7 @@ export function AppShell() {
 
         {/* Mobile drawer */}
         <div className={`drawer-backdrop ${drawerOpen ? 'is-open' : ''}`} onClick={() => setDrawerOpen(false)} aria-hidden />
-        <div className={`drawer ${drawerOpen ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label="Menu">
+        <div className={`drawer ${drawerOpen ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label={t('sidebar.menu')}>
           {/* Reuse sidebar but always expanded inside drawer */}
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 12px', borderBottom: '1px solid rgba(255,255,255,.06)', background: 'rgba(255,255,255,.03)' }}>
@@ -71,7 +73,7 @@ export function AppShell() {
                 </span>
                 Haivoly
               </div>
-              <button className="icon-btn" onClick={() => setDrawerOpen(false)} aria-label="Fermer le menu" style={{ background: 'rgba(255,255,255,.08)', borderColor: 'rgba(255,255,255,.12)', color: 'white' }}>
+              <button className="icon-btn" onClick={() => setDrawerOpen(false)} aria-label={t('commun.actions.fermerMenu')} style={{ background: 'rgba(255,255,255,.08)', borderColor: 'rgba(255,255,255,.12)', color: 'white' }}>
                 <X size={16} />
               </button>
             </div>
@@ -85,12 +87,12 @@ export function AppShell() {
         <div className="main-wrap">
           {/* Mobile top bar hidden on desktop handled by TopBar but we keep one for drawer toggle */}
           <div className="mobile-header" style={{ height: 56, background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #E5E7EB', display: 'none', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', position: 'sticky', top: 0, zIndex: 30 } as any}>
-            <button className="icon-btn" onClick={() => setDrawerOpen(true)} aria-label="Ouvrir le menu">
+            <button className="icon-btn" onClick={() => setDrawerOpen(true)} aria-label={t('commun.actions.ouvrirMenu')}>
               <Menu size={18} />
             </button>
             <div style={{ fontWeight: 900, letterSpacing: -0.02, display: 'flex', gap: 8, alignItems: 'center' }}>
               <span style={{ width: 28, height: 28, borderRadius: 10, background: '#2E7D32', display: 'grid', placeItems: 'center' }}>
-                <Sprout size={14} color="white" />
+                <Sprout size={16} color="white" />
               </span>
               Haivoly
             </div>
@@ -105,12 +107,12 @@ export function AppShell() {
           </main>
           <footer style={{ borderTop: '1px solid #EAECF0', background: 'white', marginTop: 8 }}>
             <div style={{ maxWidth: 1440 - 32, margin: '0 auto', padding: '14px 22px', display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 12, color: '#98A2B3', flexWrap: 'wrap' }}>
-              <span>© {new Date().getFullYear()} Haivoly — Offline-first • Sync robuste • Recommandations → Mobile</span>
+              <span>{t('pied.copyright', { annee: new Date().getFullYear() })} — {t('pied.slogan')}</span>
               <span style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-                <span>Antananarivo • MG</span>
+                <span>{t('pied.ville')}</span>
                 <span style={{ width: 1, height: 12, background: '#E5E7EB', display: 'inline-block' }} />
                 <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-                  <span style={{ width: 7, height: 7, borderRadius: 999, background: '#10B981', boxShadow: '0 0 0 4px rgba(16,185,129,.14)' }} /> Système opérationnel
+                  <span style={{ width: 7, height: 7, borderRadius: 999, background: '#10B981', boxShadow: '0 0 0 4px rgba(16,185,129,.14)' }} /> {t('pied.systemeOperationnel')}
                 </span>
               </span>
             </div>

@@ -3,6 +3,11 @@ import { Layout } from '../components/Layout/Layout';
 import { Dashboard } from '../pages/Dashboard';
 import { Actions } from '../pages/Actions';
 import { Recommendations } from '../pages/Recommendations';
+import { Parcelles } from '../pages/Parcelles';
+import { Cultures } from '../pages/Cultures';
+import { Interventions } from '../pages/Interventions';
+import { Observations } from '../pages/Observations';
+import { Recoltes } from '../pages/Recoltes';
 import { Login } from '../pages/Login';
 
 function Protected({ children }: { children: React.ReactNode }) {
@@ -25,6 +30,11 @@ export const router = createBrowserRouter([
       { path: 'actions', element: <Actions /> },
       { path: 'actions/:id', element: <Actions /> },
       { path: 'recommandations', element: <Recommendations /> },
+      { path: 'parcelles', element: <Parcelles /> },
+      { path: 'cultures', element: <Cultures /> },
+      { path: 'interventions', element: <Interventions /> },
+      { path: 'observations', element: <Observations /> },
+      { path: 'recoltes', element: <Recoltes /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

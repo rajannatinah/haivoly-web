@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, LogOut, Trash2, Info, CheckCircle2, X } from 'lucide-react';
 
@@ -28,8 +29,8 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = 'Confirmer',
-  cancelLabel = 'Annuler',
+  confirmLabel,
+  cancelLabel,
   variant = 'danger',
   icon,
   loading,
@@ -38,6 +39,7 @@ export function ConfirmDialog({
 }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
   const v = variantMap[variant];
 
   useEffect(() => {
@@ -132,7 +134,7 @@ export function ConfirmDialog({
               )}
             </div>
             <button
-              aria-label="Fermer"
+              aria-label={t('commun.confirmation.fermer')}
               onClick={onCancel}
               className="icon-btn"
               style={{ width: 34, height: 34, borderRadius: 10, flex: '0 0 34px' }}
@@ -143,7 +145,7 @@ export function ConfirmDialog({
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
             <button onClick={onCancel} className="btn btn-outline" style={{ minWidth: 110 }} disabled={loading}>
-              {cancelLabel}
+              {cancelLabel ?? t('commun.actions.annuler')}
             </button>
             <button
               data-autofocus
@@ -159,12 +161,12 @@ export function ConfirmDialog({
                     <i style={{ background: 'white' }} />
                     <i style={{ background: 'white' }} />
                   </span>{' '}
-                  Patientez…
+                  {t('commun.actions.patientez')}
                 </>
               ) : (
                 <>
                   {variant === 'danger' ? <Trash2 size={16} /> : variant === 'primary' ? <LogOut size={16} /> : variant === 'warning' ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />}
-                  {confirmLabel}
+                  {confirmLabel ?? t('commun.actions.confirmer')}
                 </>
               )}
             </button>
@@ -172,8 +174,8 @@ export function ConfirmDialog({
 
           {variant === 'danger' && (
             <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 12, background: '#FFFBEB', border: '1px solid #FEDF89', color: '#92400E', fontSize: 12, lineHeight: 1.5, fontWeight: 600, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <AlertTriangle size={14} style={{ marginTop: 2, flex: '0 0 14px' }} />
-              Cette action est irréversible et supprimera définitivement les données associées.
+              <AlertTriangle size={16} style={{ marginTop: 2, flex: '0 0 16px' }} />
+              {t('commun.confirmation.irreversible')}
             </div>
           )}
         </div>

@@ -1,25 +1,29 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Search, Bell, LogOut, Menu, Command, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useConfirm } from '../ui/ConfirmProvider';
+import { SelecteurLangue } from '../ui/SelecteurLangue';
 
-const titles: Record<string, { title: string; desc: string }> = {
-  '/': { title: 'Dashboard', desc: 'Vue d’ensemble • temps réel • Antananarivo' },
-  '/actions': { title: 'Actions mobiles', desc: 'Historique complet • filtrage • pagination' },
-  '/recommandations': { title: 'Recommandations → Mobile', desc: 'Création web → sync offline → notification mobile' },
+/** Titre et sous-titre par route, exprimés en clés de traduction. */
+const TITRES: Record<string, { title: string; desc: string }> = {
+  '/': { title: 'topbar.dashboard', desc: 'topbar.dashboardDesc' },
+  '/actions': { title: 'topbar.actions', desc: 'topbar.actionsDesc' },
+  '/recommandations': { title: 'topbar.recommandations', desc: 'topbar.recommandationsDesc' },
 };
 
 export function TopBar({ onMenu, onLogout }: { onMenu: () => void; onLogout: () => void }) {
   const { pathname } = useLocation();
   const nav = useNavigate();
   const confirm = useConfirm();
-  const meta = titles[pathname] ?? titles['/actions'] ?? { title: 'Haivoly', desc: 'Suivi & Dashboard' };
+  const { t } = useTranslation();
+  const meta = TITRES[pathname] ?? TITRES['/actions'] ?? { title: 'topbar.fallback', desc: 'topbar.fallbackDesc' };
 
   const handleLogout = async () => {
     const ok = await confirm({
-      title: 'Se déconnecter ?',
-      description: 'Vous allez quitter le dashboard web. Il faudra vous reconnecter pour accéder aux données.',
-      confirmLabel: 'Se déconnecter',
-      cancelLabel: 'Annuler',
+      title: t('topbar.deconnexion'),
+      description: t('topbar.confirmationDeconnexion'),
+      confirmLabel: t('commun.actions.seDeconnecter'),
+      cancelLabel: t('commun.actions.annuler'),
       variant: 'primary',
     });
     if (ok) onLogout();
@@ -32,8 +36,8 @@ export function TopBar({ onMenu, onLogout }: { onMenu: () => void; onLogout: () 
           <button
             className="icon-btn"
             onClick={onMenu}
-            aria-label="Ouvrir le menu"
-            title="Menu (⌘B)"
+            aria-label={t('commun.actions.ouvrirMenu')}
+            title={t('topbar.menu')}
             style={{
               width: 42,
               height: 42,
@@ -46,13 +50,13 @@ export function TopBar({ onMenu, onLogout }: { onMenu: () => void; onLogout: () 
             <Menu size={18} />
           </button>
           {/* Mobile hamburger — visible ≤1024px via CSS */}
-          <button className="icon-btn mobile-header" onClick={onMenu} aria-label="Ouvrir le menu" style={{ width: 42, height: 42, background: '#0F1A0F', borderColor: '#0F1A0F', color: 'white' }}>
+          <button className="icon-btn mobile-header" onClick={onMenu} aria-label={t('commun.actions.ouvrirMenu')} style={{ width: 42, height: 42, background: '#0F1A0F', borderColor: '#0F1A0F', color: 'white' }}>
             <Menu size={18} />
           </button>
           <div className="topbar-title">
             <h1>
               {pathname === '/' ? <Sparkles size={16} color="#2E7D32" /> : null}
-              {meta.title}
+              {t(meta.title)}
               <span
                 style={{
                   fontSize: 11,
@@ -69,28 +73,29 @@ export function TopBar({ onMenu, onLogout }: { onMenu: () => void; onLogout: () 
                   gap: 4,
                 }}
               >
-                <Command size={10} /> ⌘K
+                <Command size={16} /> ⌘K
               </span>
             </h1>
-            <p>{meta.desc}</p>
+            <p>{t(meta.desc)}</p>
           </div>
         </div>
 
         <div className="topbar-actions">
+          <SelecteurLangue />
           <div className="search" style={{ display: 'none' } as any}>
             <Search size={16} />
-            <input className="input" placeholder="Rechercher (⌘K) — utilisateur, action, parcelle…" />
+            <input className="input" placeholder={t('topbar.recherchePlaceholder')} />
           </div>
           <button
             className="icon-btn has-dot"
-            aria-label="Notifications"
-            title="Notifications"
+            aria-label={t('topbar.notifications')}
+            title={t('topbar.notifications')}
             onClick={() => nav('/recommandations')}
           >
             <Bell size={18} />
           </button>
-          <button onClick={handleLogout} className="btn btn-outline" style={{ minHeight: 40, padding: '0 14px', gap: 8 }}>
-            <LogOut size={16} /> <span className="hide-mobile">Déconnexion</span>
+          <button onClick={handleLogout} className="btn btn-outline">
+            <LogOut size={16} /> <span className="hide-mobile">{t('topbar.deconnexion')}</span>
           </button>
         </div>
       </div>
