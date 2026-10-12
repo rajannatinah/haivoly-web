@@ -10,7 +10,7 @@ import { Observations } from '../pages/Observations';
 import { Recoltes } from '../pages/Recoltes';
 import { Login } from '../pages/Login';
 
-function Protected({ children }: { children: React.ReactNode }) {
+function Protected({ children }: Readonly<{ children: React.ReactNode }>) {
   const token = localStorage.getItem('haivoly_web_token');
   if (!token) return <Navigate to="/login" replace />;
   return <>{children}</>;

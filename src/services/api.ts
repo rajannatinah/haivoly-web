@@ -61,13 +61,6 @@ export async function deleteRecommendation(id: string) {
   return res.data;
 }
 
-// Auth (reuse backend auth)
-/**
- * Connexion. Le backend enveloppe ses reponses dans
- * `{ success, data, message }` : le token est donc dans `data.access_token`,
- * PAS au premier niveau. L'ancienne version lisait `res.access_token`, qui
- * valait `undefined` — la connexion reelle ne pouvait pas aboutir.
- */
 export async function loginWeb(email: string, password: string) {
   const res = await api.post('/auth/login', { email, password });
   const corps = res.data as { data?: { access_token?: string; utilisateur?: unknown } };
@@ -78,11 +71,6 @@ export async function loginWeb(email: string, password: string) {
   return { access_token: accessToken, utilisateur: corps.data?.utilisateur };
 }
 
-/**
- * Utilisateur connecté. Remplace l'identité fictive (« Admin Haivoly ») qui
- * était codée en dur dans la barre latérale : le backend est la source de
- * vérité pour l'identité comme pour le rôle.
- */
 export interface UtilisateurConnecte {
   id: string;
   nom: string | null;
@@ -101,17 +89,6 @@ export async function getMe(): Promise<UtilisateurConnecte> {
   }
   return u;
 }
-
-// ─── Données métier (pages parcelles / cultures / interventions / ───────────
-//     observations / récoltes)
-//
-// CONTRAINTE BACKEND VERIFIEE : les interventions et les observations
-// n'ont PAS de route de liste plate. Elles ne sont accessibles que via
-// `GET /cultures/:cultureId/...`. Les deux agregations ci-dessous font donc
-// un appel par culture (N+1). Pour un proprietaire avec quelques dizaines de
-// cultures c'est acceptable ; au-dela il faudra ajouter au backend des routes
-// plates `GET /interventions` et `GET /observations` filtrees par
-// proprietaire. C'est documente comme limite connue.
 
 export async function getParcelles() {
   const res = await api.get('/parcelles');
@@ -148,18 +125,7 @@ export async function getRecoltes() {
   return res.data;
 }
 
-/**
- * Normalise la reponse du back en tableau.
- *
- * VERIFIE PAR APPEL REEL : `GET /parcelles`, `/cultures` et `/recoltes`
- * renvoient une ENVELOPPE PAGINEE
- *   { success: true, data: { items: [...], total, page, limit, totalPages } }
- * et non un tableau. Les formes acceptees sont donc, dans l'ordre :
- *   1. tableau brut
- *   2. { data: [...] }
- *   3. { data: { items: [...] } }   <- le cas reel
- * Une reponse inattendue donne un tableau vide, jamais une valeur inventee.
- */
+
 function liste(reponse: unknown): unknown[] {
   if (Array.isArray(reponse)) return reponse;
   const enveloppe = reponse as { data?: unknown } | null;
@@ -170,11 +136,6 @@ function liste(reponse: unknown): unknown[] {
   return [];
 }
 
-/**
- * Agrege les interventions de toutes les cultures du proprietaire.
- * Echec partiel tolere : une culture injoignable n'annule pas le reste,
- * mais l'appelant en est informe via `erreurs`.
- */
 export async function agregeInterventions(): Promise<{ items: unknown[]; erreurs: string[] }> {
   const cultures = liste(await getCultures());
   const resultats = await Promise.allSettled(

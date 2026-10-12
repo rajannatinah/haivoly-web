@@ -8,7 +8,6 @@ import {
   LogOut,
   Bell,
   ShieldCheck,
-  Leaf,
   Map,
   TreePine,
   Wrench,
@@ -54,7 +53,7 @@ function initialesDe(u: { nom: string | null; prenom: string | null; email: stri
 }
 
 
-export function Sidebar({ collapsed, onToggle, onLogout }: Props) {
+export function Sidebar({ collapsed, onToggle, onLogout }: Readonly<Props>) {
   const { pathname } = useLocation();
   const confirm = useConfirm();
   const { t } = useTranslation();
@@ -135,27 +134,6 @@ export function Sidebar({ collapsed, onToggle, onLogout }: Props) {
               {collapsed && <span className="nav-tip">{t(item.label)}</span>}
             </NavLink>
           ))}
-
-          {/* Hint card when expanded */}
-          {!collapsed && (
-            <div
-              style={{
-                marginTop: 14,
-                padding: 12,
-                borderRadius: 14,
-                background: 'rgba(255,255,255,.06)',
-                border: '1px solid rgba(255,255,255,.08)',
-                backdropFilter: 'blur(8px)',
-              }}
-            >
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'white', fontWeight: 800, fontSize: 12.5 }}>
-                <Leaf size={16} color="#86EFAC" /> {t('navigation.offlineFirst')}
-              </div>
-              <div style={{ fontSize: 11.5, lineHeight: 1.5, color: 'rgba(255,255,255,.64)', marginTop: 4, fontWeight: 500 }}>
-                {t('navigation.slogan')}
-              </div>
-            </div>
-          )}
         </nav>
 
         {/* Footer */}
@@ -176,14 +154,6 @@ export function Sidebar({ collapsed, onToggle, onLogout }: Props) {
               <LogOut size={16} />
             </button>
           </div>
-          {!collapsed && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 2px 0', fontSize: 11, color: 'rgba(255,255,255,.42)', fontWeight: 600 }}>
-              <span>{t('pied.copyright', { annee: new Date().getFullYear() })}</span>
-              <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <span style={{ width: 6, height: 6, borderRadius: 999, background: '#22C55E', boxShadow: '0 0 0 4px rgba(34,197,94,.14)' }} /> {t('pied.operationnel')}
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </aside>

@@ -34,7 +34,7 @@ export function TableauDonnees<T>({
   avertissements,
   cleLigne,
   surLigne,
-}: Props<T>) {
+}: Readonly<Props<T>>) {
   const { t } = useTranslation();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
