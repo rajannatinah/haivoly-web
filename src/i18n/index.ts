@@ -5,13 +5,6 @@ import fr from './locales/fr';
 import en from './locales/en';
 import mg from './locales/mg';
 
-/**
- * Instance i18n du web.
- *
- * Même architecture que le mobile (langues, résolution, persistance) pour que
- * les deux applications partagent le même comportement, mais stockage
- * `localStorage` au lieu d'AsyncStorage : c'est l'équivalent natif ici.
- */
 
 export const LANGUES_DISPONIBLES = ['fr', 'en', 'mg'] as const;
 export type Langue = (typeof LANGUES_DISPONIBLES)[number];
@@ -91,14 +84,6 @@ export async function changerLangue(choix: ChoixLangue): Promise<void> {
 export { i18n };
 export default i18n;
 
-/**
- * Balise BCP-47 utilisée par `Intl`.
- *
- * `mg` n'a pas de données de format fiables dans les moteurs courants : on
- * retombe sur `fr-MG`, le français étant la langue administrative et le
- * formatage attendu à Madagascar. Même règle que `baliseDeFormatage()` du
- * mobile, pour que les deux applications affichent les mêmes dates.
- */
 export const BALISES_INTL: Record<Langue, string> = {
   fr: 'fr-FR',
   en: 'en-US',

@@ -13,6 +13,8 @@ import {
   Wrench,
   Eye,
   Wheat,
+  Users,
+  CircleUser,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useConfirm } from '../ui/ConfirmProvider';
@@ -28,11 +30,13 @@ const NAV = [
   { to: '/', label: 'navigation.dashboard', icon: LayoutDashboard, desc: 'navigation.vueEnsemble' },
   { to: '/actions', label: 'navigation.actionsMobiles', icon: Activity, desc: 'navigation.fluxSync' },
   { to: '/recommandations', label: 'navigation.recommandations', icon: Sparkles, desc: 'navigation.versMobile' },
+  { to: '/utilisateurs', label: 'navigation.utilisateurs', icon: Users, desc: 'navigation.perimetreComptes' },
   { to: '/parcelles', label: 'navigation.parcelles', icon: Map, desc: 'navigation.geometrie' },
   { to: '/cultures', label: 'navigation.cultures', icon: TreePine, desc: 'navigation.cycleVie' },
   { to: '/interventions', label: 'navigation.interventions', icon: Wrench, desc: 'navigation.travaux' },
   { to: '/observations', label: 'navigation.observations', icon: Eye, desc: 'navigation.terrain' },
   { to: '/recoltes', label: 'navigation.recoltes', icon: Wheat, desc: 'navigation.rendements' },
+  { to: '/profil', label: 'navigation.profil', icon: CircleUser, desc: 'navigation.monCompte' },
 ];
 
 const SECONDARY = [
@@ -140,7 +144,12 @@ export function Sidebar({ collapsed, onToggle, onLogout }: Readonly<Props>) {
         <div className="sidebar-foot">
           <div className="user-card">
             <div className="user-avatar">{initialesDe(utilisateur)}</div>
-            <div className="user-meta">
+            <NavLink
+              to="/profil"
+              className="user-meta"
+              title={t('navigation.monCompte')}
+              style={{ textDecoration: 'none', color: 'inherit', flex: 1, minWidth: 0 }}
+            >
               <div className="user-name">
                 {chargement
                   ? t('sidebar.chargementUtilisateur')
@@ -149,7 +158,7 @@ export function Sidebar({ collapsed, onToggle, onLogout }: Readonly<Props>) {
                     : t('sidebar.utilisateurIndisponible')}
               </div>
               <div className="user-email">{utilisateur?.email ?? '—'}</div>
-            </div>
+            </NavLink>
             <button className="user-action" onClick={handleLogout} aria-label={t('commun.actions.seDeconnecter')} title={t('commun.actions.seDeconnecter')}>
               <LogOut size={16} />
             </button>

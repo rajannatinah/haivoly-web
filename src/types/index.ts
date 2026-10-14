@@ -2,26 +2,25 @@
 
 export type SyncStatus = 'PENDING' | 'SYNCING' | 'SYNCED' | 'FAILED' | 'DUPLICATE' | 'INVALID';
 
-export type ActionType =
-  | 'CREATE_PARCELLE'
-  | 'UPDATE_PARCELLE'
-  | 'DELETE_PARCELLE'
-  | 'CREATE_CULTURE'
-  | 'UPDATE_CULTURE'
-  | 'CREATE_INTERVENTION'
-  | 'UPDATE_INTERVENTION'
-  | 'CREATE_OBSERVATION'
-  | 'CREATE_RECOLTE'
-  | 'SYNC'
-  | 'LOGIN'
-  | 'OTHER';
+export type ActionType = 'CREATE' | 'UPDATE' | 'DELETE' | 'SYNC' | 'LOGIN' | 'OTHER';
 
-export type EntityType = 'UTILISATEUR' | 'PARCELLE' | 'CULTURE' | 'INTERVENTION' | 'OBSERVATION' | 'RECOLTE' | 'PHOTO';
+export type EntityType = 'PARCELLE' | 'POINT_GPS' | 'CULTURE' | 'INTERVENTION' | 'OBSERVATION' | 'PHOTO' | 'RECOLTE';
+
+export interface UtilisateurPublic {
+  id: string;
+  nom: string;
+  prenom: string | null;
+  email?: string;
+  /** Identifiant public affiché dans l'application mobile. */
+  username?: string;
+}
 
 export interface Action {
   id: string;
   userId: string;
-  user?: { id: string; nom: string; prenom: string; email: string };
+  utilisateur?: UtilisateurPublic | null;
+  /** Orthographe historique (`user`) conservée comme repli de lecture. */
+  user?: UtilisateurPublic | null;
   actionType: ActionType;
   entityType: EntityType;
   entityId: string | null;
@@ -39,7 +38,9 @@ export interface Action {
 export interface Recommendation {
   id: string;
   userId: string;
-  user?: { id: string; nom: string; prenom: string; email: string };
+  utilisateur?: UtilisateurPublic | null;
+  /** Orthographe historique (`user`) conservée comme repli de lecture. */
+  user?: UtilisateurPublic | null;
   title: string;
   message: string;
   type: 'INFO' | 'WARNING' | 'SUCCESS' | 'ALERT';

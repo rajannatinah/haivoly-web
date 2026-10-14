@@ -52,6 +52,109 @@ export async function createRecommendation(data: unknown) {
   const res = await api.post('/recommendations', data);
   return res.data;
 }
+export interface DestinataireApercu {
+  id: string;
+  nom: string;
+  prenom: string | null;
+  nomComplet: string;
+  username: string;
+  email?: string;
+  role: string;
+  estVerifie: boolean;
+}
+
+export interface PageDestinataires {
+  items: DestinataireApercu[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function rechercherUtilisateurs(
+  q: string,
+  options: { page?: number; limit?: number; signal?: AbortSignal } = {},
+): Promise<PageDestinataires> {
+  const params: Record<string, string | number> = { q };
+  if (options.page) params.page = options.page;
+  if (options.limit) params.limit = options.limit;
+
+  const res = await api.get('/users/search', { params, signal: options.signal });
+  const brute = res.data as { data?: Partial<PageDestinataires> } | null;
+  const corps = brute?.data ?? (brute as Partial<PageDestinataires> | null);
+  const items = Array.isArray(corps?.items)
+    ? (corps!.items as DestinataireApercu[])
+    : [];
+
+  return {
+    items,
+    total: Number(corps?.total ?? items.length) || 0,
+    page: Number(corps?.page ?? 1) || 1,
+    limit: Number(corps?.limit ?? items.length) || items.length,
+    totalPages: Number(corps?.totalPages ?? 1) || 1,
+  };
+}
+
+export interface UtilisateurApercu {
+  id: string;
+  nom: string;
+  prenom: string | null;
+  nomComplet: string;
+  username: string;
+  email?: string;
+  role: string;
+  estVerifie: boolean;
+}
+
+export async function getUtilisateurs(): Promise<UtilisateurApercu[]> {
+  const res = await api.get('/users');
+  return liste(res.data) as UtilisateurApercu[];
+}
+
+export interface ProfilUtilisateur {
+  id: string;
+  nom: string;
+  prenom: string | null;
+  username: string;
+  email: string;
+  telephone: string | null;
+  role: string;
+  estVerifie: boolean;
+  langue: string | null;
+  motDePasseProvisoire: boolean;
+  creeA: string;
+}
+
+export interface UpdateProfilPayload {
+  nom?: string;
+  prenom?: string;
+  telephone?: string;
+  username?: string;
+  langue?: string;
+}
+
+export async function getProfil(): Promise<ProfilUtilisateur> {
+  const res = await api.get('/users/me');
+  const corps = res.data as { data?: ProfilUtilisateur };
+  const profil = corps?.data;
+  if (!profil?.id) {
+    throw new Error('Réponse inattendue du serveur : profil absent.');
+  }
+  return profil;
+}
+
+export async function updateProfil(
+  payload: UpdateProfilPayload,
+): Promise<ProfilUtilisateur> {
+  const res = await api.patch('/users/me', payload);
+  const corps = res.data as { data?: ProfilUtilisateur };
+  const profil = corps?.data;
+  if (!profil?.id) {
+    throw new Error('Réponse inattendue du serveur : profil absent.');
+  }
+  return profil;
+}
+
 export async function markRecommendationRead(id: string) {
   const res = await api.patch(`/recommendations/${id}/read`);
   return res.data;
@@ -59,6 +162,23 @@ export async function markRecommendationRead(id: string) {
 export async function deleteRecommendation(id: string) {
   const res = await api.delete(`/recommendations/${id}`);
   return res.data;
+}
+
+export interface RegisterPayload {
+  nom: string;
+  prenom?: string;
+  email: string;
+  username?: string;
+  telephone?: string;
+  langue?: string;
+  role?: 'AGRICULTEUR' | 'PROPRIETAIRE';
+  password: string;
+}
+
+export async function registerWeb(payload: RegisterPayload) {
+  const res = await api.post('/auth/register', payload);
+  const corps = res.data as { data?: any; message?: string };
+  return corps?.data ?? corps;
 }
 
 export async function loginWeb(email: string, password: string) {

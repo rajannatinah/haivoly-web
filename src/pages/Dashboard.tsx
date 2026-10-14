@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Users, Activity, CheckCircle2, Clock3, AlertTriangle, Sprout, TrendingUp, Bell } from 'lucide-react';
-import { getDashboardStats, getActions, getRecommendations } from '../services/api';
+import { getDashboardStats, getActions, getRecommendations, normaliseListe } from '../services/api';
 import { ErreurBloc, VideBloc, messageErreur } from '../components/ui/ErrorState';
 import { formaterDateHeure } from '../i18n';
+import { detailDestinataire, libelleDestinataire } from '../utils/destinataire';
 import type { DashboardStats, Action, Recommendation } from '../types';
 
 function StatCard({ icon: Icon, label, value, hint, accent }: { icon: any; label: string; value: string | number; hint?: string; accent: string }) {
@@ -35,12 +36,12 @@ export function Dashboard() {
     try {
       const [s, a, r] = await Promise.all([
         getDashboardStats(),
-        getActions({ limit: 5, sort: 'timestamp:desc' }),
+        getActions({ limit: 5 }),
         getRecommendations({ limit: 3 }),
       ]);
-      setStats(s as DashboardStats);
-      setRecent(((a as any).data ?? (a as any) ?? []) as Action[]);
-      setRecos(((r as any).data ?? (r as any) ?? []) as Recommendation[]);
+      setStats(((s as any)?.data ?? s) as DashboardStats);
+      setRecent(normaliseListe(a) as Action[]);
+      setRecos(normaliseListe(r) as Recommendation[]);
     } catch (error) {
       // Aucune donnée de repli : une erreur est affichée telle quelle.
       setStats(null);
@@ -119,8 +120,8 @@ export function Dashboard() {
                 <tr key={a.id}>
                   <td style={{ whiteSpace: 'nowrap', color: '#667085', fontSize: 12 }}>{formaterDateHeure(a.timestamp)}</td>
                   <td>
-                    <div style={{ fontWeight: 700, fontSize: 13 }}>{a.user ? `${a.user.prenom} ${a.user.nom}` : a.userId.slice(0, 8)}</div>
-                    <div style={{ fontSize: 11, color: '#98A2B3' }}>{a.user?.email ?? ''}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13 }}>{libelleDestinataire(a)}</div>
+                    <div style={{ fontSize: 11, color: '#98A2B3' }}>{detailDestinataire(a)}</div>
                   </td>
                   <td><span className="badge badge-primary">{a.actionType}</span></td>
                   <td style={{ fontSize: 12 }}>{a.entityType} • <span style={{ color: '#667085' }}>{a.entityId?.slice(0, 6) ?? '—'}</span></td>
@@ -168,7 +169,7 @@ export function Dashboard() {
                     <span className={`badge ${r.priority === 'URGENT' ? 'badge-error' : r.priority === 'HIGH' ? 'badge-warning' : 'badge-info'}`}>{r.priority}</span>
                   </div>
                   <div style={{ fontSize: 12, color: '#667085', marginTop: 4, lineHeight: 1.5 }}>{r.message}</div>
-                  <div style={{ fontSize: 11, color: '#98A2B3', marginTop: 6 }}>{formaterDateHeure(r.createdAt)} • {r.user ? `${r.user.prenom} ${r.user.nom}` : r.userId.slice(0, 6)}</div>
+                  <div style={{ fontSize: 11, color: '#98A2B3', marginTop: 6 }}>{formaterDateHeure(r.createdAt)} • {libelleDestinataire(r)}</div>
                 </div>
               ))}
               <a href="/recommandations" style={{ fontSize: 12, fontWeight: 700, textAlign: 'center', display: 'block', marginTop: 4 }}>{t('dashboard.gererRecommandations')}</a>

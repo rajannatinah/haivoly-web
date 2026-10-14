@@ -454,15 +454,10 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
 .muted{ color:var(--muted) }
 .grid-auto{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px }
 
-
 /* Debug — s'assurer que le menu est toujours visible */
 .sidebar .nav{ min-height: 200px }
 .nav-item{ visibility: visible !important }
 
-/*
- * Masque visuellement tout en gardant le contenu accessible aux lecteurs
- * d'ecran : requis par le selecteur de langue et tout label `sr-only`.
- */
 .sr-only {
   position: absolute;
   width: 1px;

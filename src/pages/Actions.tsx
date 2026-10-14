@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Filter, Download, Eye, RefreshCw } from 'lucide-react';
-import { getActions } from '../services/api';
+import { getActions, normaliseListe } from '../services/api';
 import { ErreurBloc, VideBloc, messageErreur } from '../components/ui/ErrorState';
 import { formaterDateHeure } from '../i18n';
+import { detailDestinataire, libelleDestinataire } from '../utils/destinataire';
 import type { Action } from '../types';
 
 export function Actions() {
@@ -22,8 +23,12 @@ export function Actions() {
     setChargement(true);
     setErreur(null);
     try {
-      const res = (await getActions({ q, status, type, page, limit })) as any;
-      setData(res?.data ?? res ?? []);
+      const params: Record<string, string | number> = { page, limit };
+      if (q) params.q = q;
+      if (status !== 'ALL') params.syncStatus = status;
+      if (type !== 'ALL') params.actionType = type;
+      const res = await getActions(params);
+      setData(normaliseListe(res) as Action[]);
     } catch (error) {
       // Aucune donnée de repli : on affiche l'erreur réelle.
       setData([]);
@@ -77,11 +82,9 @@ export function Actions() {
           </select>
           <select value={type} onChange={(e) => setType(e.target.value)} className="input" style={{ minWidth: 180 }}>
             <option value="ALL">{t('commun.filtres.tousTypes')}</option>
-            <option value="CREATE_PARCELLE">CREATE_PARCELLE</option>
-            <option value="CREATE_CULTURE">CREATE_CULTURE</option>
-            <option value="CREATE_INTERVENTION">CREATE_INTERVENTION</option>
-            <option value="CREATE_OBSERVATION">CREATE_OBSERVATION</option>
-            <option value="CREATE_RECOLTE">CREATE_RECOLTE</option>
+            <option value="CREATE">CREATE</option>
+            <option value="UPDATE">UPDATE</option>
+            <option value="DELETE">DELETE</option>
           </select>
         </div>
         <span className="badge">{t('commun.etats.resultats', { count: filtered.length })}</span>
@@ -108,8 +111,8 @@ export function Actions() {
                 <tr key={a.id}>
                   <td style={{ whiteSpace: 'nowrap', fontSize: 12, color: '#667085' }}>{formaterDateHeure(a.timestamp)}</td>
                   <td>
-                    <div style={{ fontWeight: 700 }}>{a.user ? `${a.user.prenom} ${a.user.nom}` : a.userId.slice(0, 8)}</div>
-                    <div style={{ fontSize: 11, color: '#98A2B3' }}>{a.user?.email ?? a.userId}</div>
+                    <div style={{ fontWeight: 700 }}>{libelleDestinataire(a)}</div>
+                    <div style={{ fontSize: 11, color: '#98A2B3' }}>{detailDestinataire(a) || a.userId}</div>
                   </td>
                   <td><span className="badge badge-primary">{a.actionType}</span></td>
                   <td>

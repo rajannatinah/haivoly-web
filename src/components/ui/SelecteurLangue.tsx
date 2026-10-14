@@ -10,11 +10,6 @@ import {
   type ChoixLangue,
 } from '../../i18n';
 
-/**
- * Sélecteur de langue de l'interface.
- * Le changement est immédiat (react-i18next réagit à `changeLanguage`) et
- * persisté dans localStorage.
- */
 export function SelecteurLangue() {
   const { t, i18n } = useTranslation();
   const choix: ChoixLangue = lireChoix();

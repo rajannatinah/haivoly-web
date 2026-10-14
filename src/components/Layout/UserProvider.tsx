@@ -4,12 +4,6 @@ import type { ReactNode } from 'react';
 import { getMe } from '../../services/api';
 import type { UtilisateurConnecte } from '../../services/api';
 
-/**
- * Utilisateur connecté, chargé depuis `GET /auth/me`.
- *
- * Tant que la requête n'a pas abouti, `utilisateur` vaut `null` : les
- * composants affichent alors un état neutre plutôt qu'une identité inventée.
- */
 interface ContexteUtilisateur {
   utilisateur: UtilisateurConnecte | null;
   chargement: boolean;

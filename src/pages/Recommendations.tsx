@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Send, Bell, AlertTriangle, CheckCircle2, Info, Plus, Trash2 } from 'lucide-react';
-import { getRecommendations, createRecommendation, deleteRecommendation } from '../services/api';
+import { getRecommendations, createRecommendation, deleteRecommendation, normaliseListe, type DestinataireApercu } from '../services/api';
 import { useConfirm } from '../components/ui/ConfirmProvider';
-import { ErreurBloc, VideBloc, messageErreur } from '../components/ui/ErrorState';
+import { ALIAS_DIFFUSION, UserSearchSelect } from '../components/ui/UserSearchSelect';
+import {
+  compteRenduPublication,
+  detailDestinataire,
+  libelleDestinataire,
+} from '../utils/destinataire';
+import { ErreurBloc, messageErreur } from '../components/ui/ErrorState';
 import { formaterDateHeure } from '../i18n';
 import type { Recommendation } from '../types';
 
@@ -15,24 +21,23 @@ export function Recommendations() {
   const [message, setMessage] = useState('');
   const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'>('MEDIUM');
   const [userId, setUserId] = useState('');
+  const [destinataire, setDestinataire] = useState<DestinataireApercu | null>(null);
 
   const [erreur, setErreur] = useState<string | null>(null);
   const [erreurEnvoi, setErreurEnvoi] = useState<string | null>(null);
+  const [accuse, setAccuse] = useState<string | null>(null);
   const [envoiEnCours, setEnvoiEnCours] = useState(false);
-  const [chargement, setChargement] = useState(false);
 
   const load = useCallback(async () => {
-    setChargement(true);
     setErreur(null);
     try {
-      const res = (await getRecommendations()) as any;
-      setList(res?.data ?? res ?? []);
+      const res = await getRecommendations();
+      setList(normaliseListe(res) as Recommendation[]);
     } catch (error) {
       // Aucune donnée de repli : l'erreur réelle est affichée.
       setList([]);
       setErreur(messageErreur(error));
     } finally {
-      setChargement(false);
     }
   }, []);
 
@@ -47,17 +52,21 @@ export function Recommendations() {
     setEnvoiEnCours(true);
     setErreurEnvoi(null);
     try {
-      await createRecommendation({
+      const rep = await createRecommendation({
         title,
         message,
         priority,
-        userId: userId || 'all',
+        // Le sélecteur n'envoie que des identifiants qu'il a reçus du serveur ;
+        // `all` reste l'alias historique de la diffusion au périmètre.
+        userId: userId || ALIAS_DIFFUSION,
         type: 'INFO',
       });
       // Le formulaire n'est vidé que si le serveur a confirmé la publication.
       setTitle('');
       setMessage('');
       setUserId('');
+      setDestinataire(null);
+      setAccuse(compteRenduPublication(rep, destinataire));
       await load();
     } catch (error) {
       // Les valeurs saisies sont conservées pour permettre la correction.
@@ -88,6 +97,26 @@ export function Recommendations() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {erreur && <ErreurBloc erreur={erreur} onRetry={() => void load()} />}
+      {accuse && !erreurEnvoi && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            display: 'flex',
+            gap: 8,
+            alignItems: 'center',
+            border: '1px solid #ABEFC6',
+            background: '#EDF7ED',
+            color: '#039855',
+            borderRadius: 12,
+            padding: '10px 12px',
+            fontSize: 12.5,
+            fontWeight: 700,
+          }}
+        >
+          <CheckCircle2 size={16} /> {accuse}
+        </div>
+      )}
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5, margin: 0, display: 'flex', gap: 10, alignItems: 'center' }}>
           <Bell size={20} color="#2E7D32" /> {t('recommandations.titre')}
@@ -111,7 +140,14 @@ export function Recommendations() {
               <option value="HIGH">{t('recommandations.priorites.HIGH')}</option>
               <option value="URGENT">{t('recommandations.priorites.URGENT')}</option>
             </select>
-            <input className="input" placeholder={t('recommandations.userIdPlaceholder')} value={userId} onChange={(e) => setUserId(e.target.value)} style={{ flex: 1 }} />
+            <UserSearchSelect
+              value={userId}
+              onChange={(idChoisi, compte) => {
+                setUserId(idChoisi);
+                setDestinataire(compte);
+                setAccuse(null);
+              }}
+            />
           </div>
           <button type="submit" className="btn btn-primary" style={{ justifyContent: 'center' }}>
             <Send size={16} /> {t('recommandations.envoyerVersMobile')}
@@ -155,7 +191,9 @@ export function Recommendations() {
                 </div>
                 <div style={{ fontSize: 12, color: '#344054', marginTop: 6, lineHeight: 1.5 }}>{r.message}</div>
                 <div style={{ fontSize: 11, color: '#98A2B3', marginTop: 8, display: 'flex', justifyContent: 'space-between' }}>
-                  <span>{r.user ? `${r.user.prenom} ${r.user.nom}` : r.userId} • {formaterDateHeure(r.createdAt)}</span>
+                  <span title={detailDestinataire(r)}>
+                    {libelleDestinataire(r)} • {formaterDateHeure(r.createdAt)}
+                  </span>
                   <span className="badge">{r.readAt ? t('recommandations.lue') : t('recommandations.nonLue')}</span>
                 </div>
               </div>

@@ -1,11 +1,5 @@
 import type { Traductions } from './fr';
 
-/**
- * Rakipahalalana malagasy. Mitovy tanteraka amin'ny `fr` ny fanalahidy —
- * voamarina amin'ny alalan'ny fitsapana ny fitoviana.
- *
- * Tsy mbola novakin'ny olona miteny malagasy ho an'ny tena izy io dikanteny io.
- */
 const mg: Traductions = {
   commun: {
     actions: {
@@ -82,6 +76,8 @@ const mg: Traductions = {
     dashboard: 'Pejy fandraisana',
     actionsMobiles: 'Asa finday',
     recommandations: 'Torohevitra',
+    utilisateurs: 'Mpampiasa',
+    perimetreComptes: 'Kaonty eo amin’ny faritra',
     parcelles: 'Tanimboly',
     cultures: 'Fambolena',
     interventions: 'Fidiranana',
@@ -102,8 +98,8 @@ const mg: Traductions = {
     systeme: 'Rafitra',
     principal: 'Tena',
     navigationPrincipale: 'Fitetezana voalohany',
-    offlineFirst: 'Offline-first',
-    slogan: 'Asa finday → filaharana → sync matanjaka → torohevitra → ivon-toerana fampandrenesana.',
+    profil: 'Mombamomba',
+    monCompte: 'Ny kaontinao',
   },
   auth: {
     titre: 'Haivoly',
@@ -116,6 +112,11 @@ const mg: Traductions = {
     connexion: 'Miditra…',
     identifiantsInvalides: 'Tsy mety ny mpamantaratra',
     reponseInattendue: 'Valin-kafatra tsy nampoizina : tsy nisy marika avy amin’ny mpizara.',
+    inscription: 'Famoronana kaonty',
+    sInscrire: 'Hamorona kaonty',
+    dejaCompte: 'Efa manana kaonty?',
+    pasEncoreCompte: 'Tsy mbola manana kaonty?',
+    creerCompte: 'Hamorona kaonty',
   },
   dashboard: {
     titre: 'Fanaraha-maso & Pejy',
@@ -181,6 +182,20 @@ const mg: Traductions = {
     page: 'Pejy {{page}} • andalana {{count}}',
     aucunFiltre: 'Tsy misy asa mifanaraka amin’ireo sivana ireo.',
   },
+  destinataires: {
+    titre: 'Mpararay',
+    recherchePlaceholder: 'Anarana, @anisam-pikambana na mailaka',
+    chargement: 'Mitady…',
+    aucun: 'Tsy misy kaounta mifanaraka amin’ny faritra anananao.',
+    tropCourt: 'Sorizo litera farafahakeliny iray mba hanombohana ny fitadiavana.',
+    tous: 'Ny kaounta mavitrika rehetra ananako (fampielezana)',
+    enAttente: 'Miandry fanamarinana',
+    selectionne: 'Mpararay : {{nom}}',
+    modifier: 'Hanova ny mpararay',
+    erreur: 'Tsy nahomby ny fitadiavana : {{message}}',
+    ouvrirAria: 'Haseho ny lisitry ny mpararay',
+    effacerAria: 'Hanala ny mpararay voafidy',
+  },
   recommandations: {
     titre: 'Torohevitra',
     nouvelle: 'Torohevitra vaovao',
@@ -188,7 +203,6 @@ const mg: Traductions = {
     messagePlaceholder: 'Hafatra feno ho an’ny tantsaha…',
     sousTitre: 'Mamorona torohevitra avy amin’ny web — halefa mankany amin’ny application finday izy ireo (offline-first, marika tsy vakiana, ivon-toerana fampandrenesana). Mila fanamarinana ny famafana rehetra.',
     envoyerVersMobile: 'Alefa mankany amin’ny finday',
-    userIdPlaceholder: 'userId na « all » (fampielezana)',
     architecture: 'Rafitra : Asa finday → Backend → Fitsipika raharaha → Torohevitra → Sync → Fampandrenesana finday (WebSocket / polling + fitehirizana offline).',
     fileAttente: 'Filaharana fandefasana',
     lue: 'Vakiana',
@@ -204,11 +218,50 @@ const mg: Traductions = {
       URGENT: 'URGENT',
     },
     aucune: 'Tsy misy torohevitra.',
+    compteRenduDestinataire: 'Nalefa tamin’i {{nom}}.',
+    compteRenduDiffusion: 'Nalefa tamin’ny kaounta {{count}} tao amin’ny faritra anananao.',
+    compteRenduInconnu: 'Voatahiry ny fandefasana. Avereno jerena ny filaharana hamarinana ny mpararay.',
+  },
+  utilisateurs: {
+    titre: 'Mpampiasa',
+    sousTitre: 'Kaonty rehetra ao amin’ny faritra anananao • Andraikitra • Toe-jotra',
+    recherche: 'Hikaroka anarana, anaram-pampiasa, mailaka…',
+    vide: 'Tsy misy mpampiasa ao amin’ny faritra anananao.',
+    actif: 'Mavitrika',
+    enAttente: 'Miandry',
+    colonnes: {
+      email: 'Mailaka',
+      role: 'Andraikitra',
+    },
+  },
+  profil: {
+    titre: 'Ny mombamomba ahy',
+    sousTitre: 'Hitantana ny mombamomba anao manokana sy ny safidinao.',
+    sectionIdentite: 'Mombamomba',
+    sectionContact: 'Fifandraisana',
+    sectionPreferences: 'Safidy',
+    nom: 'Anarana',
+    prenom: 'Fanampin’anarana',
+    username: 'Anaram-pampiasa',
+    usernameAide: '3 ka hatramin’ny 30 litera: kely, isa, . _ -',
+    email: 'Mailaka',
+    emailAide: 'Tsy azo ovaina ny adiresy mailaka.',
+    telephone: 'Finday',
+    langue: 'Fitenin’ny interface',
+    role: 'Andraikitra',
+    statut: 'Toe-jotra kaonty',
+    actif: 'Mavitrika',
+    enAttente: 'Miandry',
+    membreDepuis: 'Mpikambana nanomboka',
+    enregistrer: 'Tehirizo ny fanovana',
+    enregistrement: 'Mitahiry…',
+    enregistre: 'Nohavaozina soa aman-tsara ny mombamomba.',
+    erreurChargement: 'Tsy afaka naka ny mombamomba anao.',
+    motDePasseProvisoire: 'Vonjimaika ny tenimiafinao: ovay haingana.',
   },
   pied: {
     copyright: '© {{annee}} Haivoly — Fanaraha-maso ny asa finday • Antananarivo',
     slogan: 'Offline-first • Sync • Torohevitra → Finday',
-    operationnel: 'Miasa',
     ville: 'Antananarivo • MG',
     systemeOperationnel: 'Miasa ny rafitra',
   },

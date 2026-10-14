@@ -70,6 +70,13 @@ export function Login() {
             <LogIn size={16} /> {loading ? t('auth.connexion') : t('auth.seConnecter')}
           </button>
 
+          <div style={{ textAlign: 'center', fontSize: 13, color: '#667085' }}>
+            {t('auth.pasEncoreCompte')}{' '}
+            <a href="/register" style={{ color: '#2E7D32', fontWeight: 600, textDecoration: 'none' }}>
+              {t('auth.sInscrire')}
+            </a>
+          </div>
+
         </form>
       </div>
     </div>
