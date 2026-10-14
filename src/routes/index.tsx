@@ -1,4 +1,6 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { Login } from '../pages/Login';
+import { Register } from '../pages/Register';
 import { Layout } from '../components/Layout/Layout';
 import { Dashboard } from '../pages/Dashboard';
 import { Actions } from '../pages/Actions';
@@ -10,8 +12,6 @@ import { Cultures } from '../pages/Cultures';
 import { Interventions } from '../pages/Interventions';
 import { Observations } from '../pages/Observations';
 import { Recoltes } from '../pages/Recoltes';
-import { Login } from '../pages/Login';
-import { Register } from '../pages/Register';
 
 function Protected({ children }: Readonly<{ children: React.ReactNode }>) {
   const token = localStorage.getItem('haivoly_web_token');
@@ -19,9 +19,19 @@ function Protected({ children }: Readonly<{ children: React.ReactNode }>) {
   return <>{children}</>;
 }
 
+function AuthOutlet() {
+  return <Outlet />;
+}
+
 export const router = createBrowserRouter([
-  { path: '/login', element: <Login /> },
-  { path: '/register', element: <Register /> },
+  {
+    // Les deux URL partagent le même écran et conservent ses champs en mémoire.
+    element: <AuthOutlet />,
+    children: [
+      { path: 'login', element: <Login /> },
+      { path: 'register', element: <Register /> },
+    ],
+  },
   {
     path: '/',
     element: (
