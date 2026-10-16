@@ -41,6 +41,9 @@ export interface Recommendation {
   utilisateur?: UtilisateurPublic | null;
   /** Orthographe historique (`user`) conservée comme repli de lecture. */
   user?: UtilisateurPublic | null;
+  /** Émetteur (lot 9) : `null` sur les recommandations antérieures au patch. */
+  createdById?: string | null;
+  createur?: UtilisateurPublic | null;
   title: string;
   message: string;
   type: 'INFO' | 'WARNING' | 'SUCCESS' | 'ALERT';

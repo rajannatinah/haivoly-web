@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Eye, Map } from 'lucide-react';
 import { getParcelles, normaliseListe } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, BadgeStatut, formateDate, formateNombre, type Colonne } from '../components/ui/TableauDonnees';
+import { PanneauDetail } from '../components/ui/PanneauDetail';
+import { formaterDateHeure } from '../i18n';
 import type { Parcelle } from '../types';
 
 export function Parcelles() {
@@ -12,6 +14,7 @@ export function Parcelles() {
   const [chargement, setChargement] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [q, setQ] = useState('');
+  const [detail, setDetail] = useState<Parcelle | null>(null);
 
   const charge = useCallback(async () => {
     setChargement(true);
@@ -49,6 +52,16 @@ export function Parcelles() {
     { cle: 'statut', entete: t('commun.colonnes.statut'), rendu: (p) => <BadgeStatut statut={p.statut} /> },
     { cle: 'sommet', entete: t('commun.colonnes.sommets'), rendu: (p) => (p.pointsGPS?.length ? p.pointsGPS.length : '—') },
     { cle: 'cree', entete: t('commun.colonnes.creeLe'), rendu: (p) => formateDate(p.creeA) },
+    {
+      cle: 'actions',
+      entete: t('commun.colonnes.actions'),
+      largeur: '1%',
+      rendu: (p) => (
+        <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${p.id}`} onClick={() => setDetail(p)}>
+          <Eye size={15} /> {t('commun.actions.details')}
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -85,6 +98,46 @@ export function Parcelles() {
         erreur={erreur}
         texteVide={t('parcelles.vide')}
         cleLigne={(p) => p.id}
+      />
+
+      <PanneauDetail
+        ouvert={detail !== null}
+        onFermer={() => setDetail(null)}
+        titre={t('detail.titreParcelle')}
+        sousTitre={detail?.nom}
+        icone={<Map size={18} color="#2E7D32" />}
+        idTest="detail-parcelle"
+        sections={
+          detail
+            ? [
+                {
+                  titre: t('detail.informations'),
+                  champs: [
+                    { libelle: t('commun.colonnes.nom'), valeur: detail.nom },
+                    { libelle: t('commun.colonnes.superficie'), valeur: formateNombre(detail.superficie) },
+                    { libelle: t('commun.colonnes.typeSol'), valeur: detail.typeSol },
+                    { libelle: t('commun.colonnes.statut'), valeur: <BadgeStatut statut={detail.statut} /> },
+                    { libelle: t('commun.colonnes.sommets'), valeur: detail.pointsGPS?.length ?? null },
+                    { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                  ],
+                  json: detail.pointsGPS?.length
+                    ? { libelle: t('detail.pointsGps'), valeur: detail.pointsGPS }
+                    : undefined,
+                },
+                {
+                  titre: t('detail.dates'),
+                  champs: [
+                    { libelle: t('commun.colonnes.creeLe'), valeur: formaterDateHeure(detail.creeA) },
+                    { libelle: t('commun.colonnes.modifieeLe'), valeur: formaterDateHeure(detail.modifieA) },
+                  ],
+                },
+                {
+                  titre: t('detail.technique'),
+                  champs: [{ libelle: t('detail.identifiant'), valeur: <code style={{ fontSize: 11 }}>{detail.id}</code>, large: true }],
+                },
+              ]
+            : []
+        }
       />
     </div>
   );

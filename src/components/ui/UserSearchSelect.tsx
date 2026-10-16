@@ -196,7 +196,7 @@ export function UserSearchSelect({
             gap: 4,
             border: '1px solid #EAECF0',
             background: 'white',
-            borderRadius: 8,
+            borderRadius: 6,
             padding: '4px 8px',
             fontSize: 11,
             fontWeight: 700,

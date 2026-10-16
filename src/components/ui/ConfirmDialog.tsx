@@ -137,7 +137,7 @@ export function ConfirmDialog({
               aria-label={t('commun.confirmation.fermer')}
               onClick={onCancel}
               className="icon-btn"
-              style={{ width: 34, height: 34, borderRadius: 10, flex: '0 0 34px' }}
+              style={{ width: 34, height: 34, flex: '0 0 34px' }}
             >
               <X size={16} />
             </button>

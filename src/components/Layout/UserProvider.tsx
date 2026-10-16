@@ -17,6 +17,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let actif = true;
+    // Sans jeton en stockage local, aucun appel réseau : évite un 401 parasite
+    // dans la console au chargement de la page de connexion.
+    if (!localStorage.getItem('haivoly_web_token')) {
+      setUtilisateur(null);
+      setChargement(false);
+      return;
+    }
     getMe()
       .then((u) => {
         if (actif) setUtilisateur(u);

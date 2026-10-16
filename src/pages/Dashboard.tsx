@@ -7,7 +7,7 @@ import { formaterDateHeure } from '../i18n';
 import { detailDestinataire, libelleDestinataire } from '../utils/destinataire';
 import type { DashboardStats, Action, Recommendation } from '../types';
 
-function StatCard({ icon: Icon, label, value, hint, accent }: { icon: any; label: string; value: string | number; hint?: string; accent: string }) {
+function StatCard({ icon: Icon, label, value, hint, accent }: Readonly<{ icon: any; label: string; value: string | number; hint?: string; accent: string }>) {
   return (
     <div className="card" style={{ padding: 16, display: 'flex', gap: 12 }}>
       <div style={{ width: 40, height: 40, borderRadius: 12, background: `${accent}14`, border: `1px solid ${accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -20,6 +20,15 @@ function StatCard({ icon: Icon, label, value, hint, accent }: { icon: any; label
       </div>
     </div>
   );
+}
+
+function syncBadgeClass(status: Action['syncStatus']) {
+  switch (status) {
+    case 'SYNCED': return 'badge-success';
+    case 'PENDING': return 'badge-warning';
+    case 'FAILED': return 'badge-error';
+    default: return 'badge-info';
+  }
 }
 
 export function Dashboard() {
@@ -126,7 +135,7 @@ export function Dashboard() {
                   <td><span className="badge badge-primary">{a.actionType}</span></td>
                   <td style={{ fontSize: 12 }}>{a.entityType} • <span style={{ color: '#667085' }}>{a.entityId?.slice(0, 6) ?? '—'}</span></td>
                   <td>
-                    <span className={`badge ${a.syncStatus === 'SYNCED' ? 'badge-success' : a.syncStatus === 'PENDING' ? 'badge-warning' : a.syncStatus === 'FAILED' ? 'badge-error' : 'badge-info'}`}>
+                    <span className={`badge ${syncBadgeClass(a.syncStatus)}`}>
                       {a.syncStatus}
                     </span>
                   </td>
@@ -162,16 +171,22 @@ export function Dashboard() {
             <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, display: 'flex', gap: 8, alignItems: 'center' }}><Sprout size={16} color="#2E7D32" /> {t('dashboard.recommandationsRecentes')}</h3>
             <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {recos.length === 0 && <VideBloc texte={t('dashboard.aucuneRecommandation')} />}
-              {recos.map((r) => (
-                <div key={r.id} style={{ border: '1px solid #EAECF0', borderRadius: 12, padding: 12, background: r.priority === 'URGENT' ? '#FEF3F2' : 'white' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13 }}>{r.title}</div>
-                    <span className={`badge ${r.priority === 'URGENT' ? 'badge-error' : r.priority === 'HIGH' ? 'badge-warning' : 'badge-info'}`}>{r.priority}</span>
+              {recos.map((r) => {
+                let priorityBadgeClass = 'badge-info';
+                if (r.priority === 'URGENT') priorityBadgeClass = 'badge-error';
+                else if (r.priority === 'HIGH') priorityBadgeClass = 'badge-warning';
+
+                return (
+                  <div key={r.id} style={{ border: '1px solid #EAECF0', borderRadius: 12, padding: 12, background: r.priority === 'URGENT' ? '#FEF3F2' : 'white' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ fontWeight: 700, fontSize: 13 }}>{r.title}</div>
+                      <span className={`badge ${priorityBadgeClass}`}>{r.priority}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#667085', marginTop: 4, lineHeight: 1.5 }}>{r.message}</div>
+                    <div style={{ fontSize: 11, color: '#98A2B3', marginTop: 6 }}>{formaterDateHeure(r.createdAt)} • {libelleDestinataire(r)}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: '#667085', marginTop: 4, lineHeight: 1.5 }}>{r.message}</div>
-                  <div style={{ fontSize: 11, color: '#98A2B3', marginTop: 6 }}>{formaterDateHeure(r.createdAt)} • {libelleDestinataire(r)}</div>
-                </div>
-              ))}
+                );
+              })}
               <a href="/recommandations" style={{ fontSize: 12, fontWeight: 700, textAlign: 'center', display: 'block', marginTop: 4 }}>{t('dashboard.gererRecommandations')}</a>
             </div>
           </div>

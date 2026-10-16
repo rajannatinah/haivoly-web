@@ -1,80 +1,51 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, LogOut, Menu, Command, Sparkles } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Menu, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useConfirm } from '../ui/ConfirmProvider';
-import { SelecteurLangue } from '../ui/SelecteurLangue';
 
-/** Titre et sous-titre par route, exprimés en clés de traduction. */
+import { SelecteurLangue } from '../ui/SelecteurLangue';
+import { ClocheNotifications } from './ClocheNotifications';
+import { MenuUtilisateur } from './MenuUtilisateur';
+
+/**
+ * Titre et sous-titre par route, exprimés en clés de traduction. Chaque page
+ * a désormais son propre titre (lot 9) : le repli sur « Actions mobiles »
+ * affichait un titre faux sur la moitié de l'application.
+ */
 const TITRES: Record<string, { title: string; desc: string }> = {
   '/': { title: 'topbar.dashboard', desc: 'topbar.dashboardDesc' },
   '/actions': { title: 'topbar.actions', desc: 'topbar.actionsDesc' },
   '/recommandations': { title: 'topbar.recommandations', desc: 'topbar.recommandationsDesc' },
+  '/utilisateurs': { title: 'navigation.utilisateurs', desc: 'navigation.perimetreComptes' },
+  '/parcelles': { title: 'navigation.parcelles', desc: 'navigation.geometrie' },
+  '/cultures': { title: 'navigation.cultures', desc: 'navigation.cycleVie' },
+  '/interventions': { title: 'navigation.interventions', desc: 'navigation.travaux' },
+  '/observations': { title: 'navigation.observations', desc: 'navigation.terrain' },
+  '/recoltes': { title: 'navigation.recoltes', desc: 'navigation.rendements' },
+  '/profil': { title: 'navigation.profil', desc: 'navigation.monCompte' },
 };
 
 export function TopBar({ onMenu, onLogout }: { onMenu: () => void; onLogout: () => void }) {
   const { pathname } = useLocation();
-  const nav = useNavigate();
-  const confirm = useConfirm();
   const { t } = useTranslation();
-  const meta = TITRES[pathname] ?? TITRES['/actions'] ?? { title: 'topbar.fallback', desc: 'topbar.fallbackDesc' };
-
-  const handleLogout = async () => {
-    const ok = await confirm({
-      title: t('topbar.deconnexion'),
-      description: t('topbar.confirmationDeconnexion'),
-      confirmLabel: t('commun.actions.seDeconnecter'),
-      cancelLabel: t('commun.actions.annuler'),
-      variant: 'primary',
-    });
-    if (ok) onLogout();
-  };
+  const meta = TITRES[pathname] ?? { title: 'topbar.fallback', desc: 'topbar.fallbackDesc' };
 
   return (
     <header className="topbar">
       <div className="topbar-inner">
         <div className="topbar-left">
           <button
-            className="icon-btn"
+            className="icon-btn mobile-header"
             onClick={onMenu}
             aria-label={t('commun.actions.ouvrirMenu')}
             title={t('topbar.menu')}
-            style={{
-              width: 42,
-              height: 42,
-              background: '#0F1A0F',
-              borderColor: '#0F1A0F',
-              color: 'white',
-              display: 'none',
-            }}
+            style={{ width: 42, height: 42, background: '#0F1A0F', borderColor: '#0F1A0F', color: 'white' }}
           >
-            <Menu size={18} />
-          </button>
-          {/* Mobile hamburger — visible ≤1024px via CSS */}
-          <button className="icon-btn mobile-header" onClick={onMenu} aria-label={t('commun.actions.ouvrirMenu')} style={{ width: 42, height: 42, background: '#0F1A0F', borderColor: '#0F1A0F', color: 'white' }}>
             <Menu size={18} />
           </button>
           <div className="topbar-title">
             <h1>
               {pathname === '/' ? <Sparkles size={16} color="#2E7D32" /> : null}
               {t(meta.title)}
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: 0.06,
-                  textTransform: 'uppercase',
-                  background: '#F3F4F6',
-                  border: '1px solid #E5E7EB',
-                  color: '#475467',
-                  padding: '2px 7px',
-                  borderRadius: 999,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 4,
-                }}
-              >
-                <Command size={16} /> ⌘K
-              </span>
             </h1>
             <p>{t(meta.desc)}</p>
           </div>
@@ -82,21 +53,8 @@ export function TopBar({ onMenu, onLogout }: { onMenu: () => void; onLogout: () 
 
         <div className="topbar-actions">
           <SelecteurLangue />
-          <div className="search" style={{ display: 'none' } as any}>
-            <Search size={16} />
-            <input className="input" placeholder={t('topbar.recherchePlaceholder')} />
-          </div>
-          <button
-            className="icon-btn has-dot"
-            aria-label={t('topbar.notifications')}
-            title={t('topbar.notifications')}
-            onClick={() => nav('/recommandations')}
-          >
-            <Bell size={18} />
-          </button>
-          <button onClick={handleLogout} className="btn btn-outline">
-            <LogOut size={16} /> <span className="hide-mobile">{t('topbar.deconnexion')}</span>
-          </button>
+          <ClocheNotifications />
+          <MenuUtilisateur onLogout={onLogout} />
         </div>
       </div>
     </header>
