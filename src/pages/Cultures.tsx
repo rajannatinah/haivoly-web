@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Eye, TreePine } from 'lucide-react';
 import { getCultures, normaliseListe } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, BadgeStatut, formateDate, type Colonne } from '../components/ui/TableauDonnees';
+import { PanneauDetail } from '../components/ui/PanneauDetail';
+import { formaterDateHeure } from '../i18n';
 import type { Culture } from '../types';
 
 const STATUTS_CULTURE = ['PLANIFIEE', 'EN_COURS', 'RECOLTEE', 'ABANDONNEE', 'SUPPRIMEE'] as const;
@@ -15,6 +17,7 @@ export function Cultures() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [q, setQ] = useState('');
   const [statut, setStatut] = useState('ALL');
+  const [detail, setDetail] = useState<Culture | null>(null);
 
   const charge = useCallback(async () => {
     setChargement(true);
@@ -53,6 +56,16 @@ export function Cultures() {
     { cle: 'plantation', entete: t('commun.colonnes.plantation'), rendu: (c) => formateDate(c.datePlantation) },
     { cle: 'prevue', entete: t('commun.colonnes.recoltePrevue'), rendu: (c) => formateDate(c.datePrevueRecolte) },
     { cle: 'statut', entete: t('commun.colonnes.statut'), rendu: (c) => <BadgeStatut statut={c.statut} /> },
+    {
+      cle: 'actions',
+      entete: t('commun.colonnes.actions'),
+      largeur: '1%',
+      rendu: (c) => (
+        <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${c.id}`} onClick={() => setDetail(c)}>
+          <Eye size={15} /> {t('commun.actions.details')}
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -97,6 +110,46 @@ export function Cultures() {
         erreur={erreur}
         texteVide={t('cultures.vide')}
         cleLigne={(c) => c.id}
+      />
+
+      <PanneauDetail
+        ouvert={detail !== null}
+        onFermer={() => setDetail(null)}
+        titre={t('detail.titreCulture')}
+        sousTitre={detail?.nom}
+        icone={<TreePine size={18} color="#2E7D32" />}
+        idTest="detail-culture"
+        sections={
+          detail
+            ? [
+                {
+                  titre: t('detail.informations'),
+                  champs: [
+                    { libelle: t('commun.colonnes.culture'), valeur: detail.nom },
+                    { libelle: t('commun.colonnes.type'), valeur: detail.type },
+                    { libelle: t('commun.colonnes.variete'), valeur: detail.variete },
+                    { libelle: t('cultures.stade'), valeur: detail.stade },
+                    { libelle: t('commun.colonnes.statut'), valeur: <BadgeStatut statut={detail.statut} /> },
+                    { libelle: t('commun.colonnes.parcelle'), valeur: detail.parcelle?.nom },
+                    { libelle: t('commun.colonnes.plantation'), valeur: formateDate(detail.datePlantation) },
+                    { libelle: t('commun.colonnes.recoltePrevue'), valeur: formateDate(detail.datePrevueRecolte) },
+                    { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                  ],
+                },
+                {
+                  titre: t('detail.dates'),
+                  champs: [
+                    { libelle: t('commun.colonnes.creeLe'), valeur: formaterDateHeure(detail.creeA) },
+                    { libelle: t('commun.colonnes.modifieeLe'), valeur: formaterDateHeure(detail.modifieA) },
+                  ],
+                },
+                {
+                  titre: t('detail.technique'),
+                  champs: [{ libelle: t('detail.identifiant'), valeur: <code style={{ fontSize: 11 }}>{detail.id}</code>, large: true }],
+                },
+              ]
+            : []
+        }
       />
     </div>
   );

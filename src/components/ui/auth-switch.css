@@ -168,24 +168,48 @@
 .auth-switch__form-content--signup {
   max-width: 430px;
   margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.auth-switch__brand-lockup {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  margin: 0 0 16px;
+/* Logo officiel Haivoly, porté par le panneau sans formulaire : badge blanc
+   pour le contraste sur le dégradé vert, fond gris clair du PNG fondu. */
+.auth-switch__panel-emblem.auth-switch__panel-emblem--logo {
+  align-self: center;
+  justify-self: center;
+  width: auto;
+  height: auto;
+  padding: 7px 12px;
+  margin: 0 auto 12px;
+  border: none;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(14, 52, 22, 0.22);
+}
+
+.auth-switch__panel-logo {
+  display: block;
+  width: 132px;
+  /* neutralise le `img { max-width: 100% }` global : dans un badge à largeur
+     auto, ce pourcentage créait une référence circulaire (logo minuscule). */
+  max-width: none;
+  height: auto;
+  mix-blend-mode: multiply;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.auth-switch__panel-soustitre {
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-align: center;
 }
 
 .auth-switch__brand-lockup--compact {
   margin-bottom: 6px;
-}
-
-.auth-switch__brand-copy {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 2px;
 }
 
 .auth-switch__brand-copy strong {
@@ -208,6 +232,7 @@
 
 .auth-switch__title {
   margin: 0;
+  text-align: center;
   color: #14251a;
   font-size: clamp(29px, 3.3vw, 36px);
   font-weight: 800;
@@ -221,6 +246,7 @@
 
 .auth-switch__form-description {
   margin: 9px 0 24px;
+  text-align: center;
   color: var(--auth-muted);
   font-size: 13px;
   line-height: 1.6;
@@ -327,7 +353,7 @@
   flex: 0 0 30px;
   place-items: center;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: #728074;
   cursor: pointer;
@@ -350,32 +376,36 @@
   gap: 8px;
 }
 
+.auth-switch__form--sign-up .auth-switch__field-grid {
+  gap: 12px 14px;
+}
+
 .auth-switch__form--sign-up .auth-switch__field {
-  margin-bottom: 5px;
+  margin: 0;
 }
 
 .auth-switch__form--sign-up .auth-switch__form-description {
-  margin: 4px 0 10px;
+  margin: 0;
   font-size: 11.5px;
 }
 
 .auth-switch__form--sign-up .auth-switch__input-wrap {
-  min-height: 37px;
-  gap: 6px;
-  padding: 0 8px;
-  border-radius: 10px;
+  min-height: 44px;
+  gap: 9px;
+  padding: 0 11px;
+  border-radius: 11px;
 }
 
 .auth-switch__form--sign-up .auth-switch__input-wrap input,
 .auth-switch__form--sign-up .auth-switch__input-wrap select {
-  height: 35px;
-  font-size: 12px;
+  height: 42px;
+  font-size: 13px;
 }
 
 .auth-switch__form--sign-up .auth-switch__field > label {
-  margin-bottom: 3px;
-  font-size: 10px;
-  line-height: 1.2;
+  margin-bottom: 5px;
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 .auth-switch__form--sign-up .auth-switch__reveal {
@@ -384,10 +414,16 @@
 }
 
 .auth-switch__password-hint {
-  margin: -2px 0 7px;
+  margin: 0;
   color: #7d897f;
   font-size: 10.5px;
   line-height: 1.45;
+}
+
+.auth-switch__form--sign-up .auth-switch__notice,
+.auth-switch__form--sign-up .auth-switch__submit,
+.auth-switch__form--sign-up .auth-switch__form-footnote {
+  margin: 0;
 }
 
 .auth-switch__notice {
@@ -428,7 +464,7 @@
   flex: 0 0 auto;
   padding: 5px 8px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 6px;
   background: #e0f1df;
   color: #1e642b;
   cursor: pointer;
@@ -461,7 +497,7 @@
   margin: 9px 0 0;
   padding: 0 17px;
   border: 1px solid #2e7d32;
-  border-radius: 13px;
+  border-radius: 6px;
   background: linear-gradient(110deg, #2e7d32, #246a2d);
   box-shadow: 0 8px 18px rgba(46, 125, 50, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.13);
   color: #fff;
@@ -621,18 +657,6 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.23), 0 8px 20px rgba(14, 52, 22, 0.12);
 }
 
-.auth-switch__panel-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 17px;
-  color: rgba(255, 255, 255, 0.76);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
 .auth-switch__panel-kicker::before,
 .auth-switch__panel-kicker::after {
   width: 18px;
@@ -667,7 +691,7 @@
   gap: 9px;
   padding: 0 18px;
   border: 1px solid rgba(255, 255, 255, 0.75);
-  border-radius: 999px;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   cursor: pointer;
@@ -744,6 +768,7 @@
   .auth-switch__form--sign-up {
     justify-content: center;
     padding: 7px 20px;
+    overflow-y: auto;
   }
 
   .auth-switch__form-content {
@@ -753,6 +778,7 @@
 
   .auth-switch__form-content--signup {
     margin: auto 0;
+    gap: 10px;
   }
 
   .auth-switch__form--sign-up .auth-switch__brand-lockup,
@@ -796,7 +822,8 @@
   .auth-switch__panel-content {
     display: grid;
     max-width: 480px;
-    grid-template-columns: 48px minmax(0, 1fr);
+    /* colonne 1 calée sur le badge logo (76 + padding 2×8), sans circularité */
+    grid-template-columns: 92px minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     align-items: center;
     column-gap: 11px;
@@ -813,7 +840,19 @@
     border-radius: 14px;
   }
 
-  .auth-switch__panel-kicker {
+  /* Le logo officiel remplace l'icône à tous les breakpoints. */
+  .auth-switch__panel-emblem.auth-switch__panel-emblem--logo {
+    width: 92px;
+    height: auto;
+    padding: 5px 8px;
+    border-radius: 12px;
+  }
+
+  .auth-switch__panel-logo {
+    width: 76px;
+  }
+
+  .auth-switch__panel-soustitre {
     display: none;
   }
 
@@ -904,6 +943,7 @@
 
   .auth-switch__form--sign-up {
     padding: 6px 12px;
+    overflow-y: auto;
   }
 
   .auth-switch__brand-lockup {
@@ -934,21 +974,25 @@
     gap: 5px;
   }
 
+  .auth-switch__form--sign-up .auth-switch__field-grid {
+    gap: 10px 8px;
+  }
+
   .auth-switch__form--sign-up .auth-switch__field {
-    margin-bottom: 3px;
+    margin: 0;
   }
 
   .auth-switch__form--sign-up .auth-switch__field > label {
-    margin-bottom: 2px;
-    font-size: 9px;
-    line-height: 1.15;
+    margin-bottom: 4px;
+    font-size: 10px;
+    line-height: 1.25;
   }
 
   .auth-switch__form--sign-up .auth-switch__input-wrap {
-    min-height: 34px;
-    gap: 4px;
-    padding: 0 6px;
-    border-radius: 8px;
+    min-height: 38px;
+    gap: 6px;
+    padding: 0 8px;
+    border-radius: 9px;
   }
 
   .auth-switch__form--sign-up .auth-switch__input-wrap > svg {
@@ -958,7 +1002,7 @@
 
   .auth-switch__form--sign-up .auth-switch__input-wrap input,
   .auth-switch__form--sign-up .auth-switch__input-wrap select {
-    height: 32px;
+    height: 36px;
     font-size: 14px;
   }
 
@@ -968,16 +1012,15 @@
   }
 
   .auth-switch__form--sign-up .auth-switch__password-hint {
-    margin: 0 0 5px;
-    font-size: 9px;
-    line-height: 1.2;
+    font-size: 10px;
+    line-height: 1.35;
   }
 
   .auth-switch__form--sign-up .auth-switch__notice {
     gap: 5px;
-    margin-bottom: 5px;
+    margin: 0;
     padding: 5px 7px;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .auth-switch__form--sign-up .auth-switch__submit {
@@ -986,7 +1029,6 @@
   }
 
   .auth-switch__form--sign-up .auth-switch__form-footnote {
-    margin-top: 4px;
     font-size: 10px;
   }
 
@@ -999,7 +1041,7 @@
   }
 
   .auth-switch__panel-content {
-    grid-template-columns: 39px minmax(0, 1fr);
+    grid-template-columns: 78px minmax(0, 1fr);
     column-gap: 8px;
     row-gap: 2px;
   }
@@ -1008,6 +1050,16 @@
     width: 36px;
     height: 36px;
     border-radius: 11px;
+  }
+
+  .auth-switch__panel-emblem.auth-switch__panel-emblem--logo {
+    width: 78px;
+    padding: 5px 8px;
+    border-radius: 11px;
+  }
+
+  .auth-switch__panel-logo {
+    width: 62px;
   }
 
   .auth-switch__panel h2 {
@@ -1041,7 +1093,7 @@
   }
 
   .auth-switch__panel-content {
-    grid-template-columns: 33px minmax(0, 1fr);
+    grid-template-columns: 66px minmax(0, 1fr);
     column-gap: 6px;
   }
 
@@ -1049,6 +1101,16 @@
     width: 31px;
     height: 31px;
     border-radius: 9px;
+  }
+
+  .auth-switch__panel-emblem.auth-switch__panel-emblem--logo {
+    width: 66px;
+    padding: 4px 6px;
+    border-radius: 9px;
+  }
+
+  .auth-switch__panel-logo {
+    width: 54px;
   }
 
   .auth-switch__panel h2 {
@@ -1094,7 +1156,7 @@
   }
 
   .auth-switch__form--sign-up .auth-switch__field-grid {
-    gap: 5px;
+    gap: 10px 8px;
   }
 
   .auth-switch__form--sign-up .auth-switch__field {

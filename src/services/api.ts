@@ -159,6 +159,33 @@ export async function markRecommendationRead(id: string) {
   const res = await api.patch(`/recommendations/${id}/read`);
   return res.data;
 }
+export async function markRecommendationUnread(id: string) {
+  const res = await api.patch(`/recommendations/${id}/unread`);
+  return res.data;
+}
+
+/** Recommandations de l'utilisateur connecté (onglet « Reçues » + cloche). */
+export async function getRecommendationsPourMoi(
+  options: { unreadOnly?: boolean } = {},
+) {
+  const params = options.unreadOnly ? { unreadOnly: 'true' } : undefined;
+  const res = await api.get('/recommendations/me', { params });
+  return liste(res.data);
+}
+
+/** Compteur de non-lues pour le badge de la cloche. */
+export async function getNombreNonLues(): Promise<number> {
+  const res = await api.get('/recommendations/me/unread-count');
+  const corps = res.data as { count?: number; data?: { count?: number } };
+  return Number(corps?.count ?? corps?.data?.count ?? 0) || 0;
+}
+
+/** « Tout marquer comme lu » (mode lecture de l'onglet Reçues). */
+export async function markAllRecommendationsRead(): Promise<number> {
+  const res = await api.patch('/recommendations/read-all');
+  const corps = res.data as { updated?: number; data?: { updated?: number } };
+  return Number(corps?.updated ?? corps?.data?.updated ?? 0) || 0;
+}
 export async function deleteRecommendation(id: string) {
   const res = await api.delete(`/recommendations/${id}`);
   return res.data;

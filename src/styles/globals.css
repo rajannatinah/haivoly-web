@@ -38,6 +38,8 @@
   --sidebar-w-collapsed: 72px;
   --topbar-h: 60px;
   --radius: 16px;
+  /* Tous les boutons du web partagent le même rayon (rounded-md). */
+  --radius-btn: 6px;
   --radius-lg: 20px;
   --radius-xl: 24px;
   --radius-pill: 9999px;
@@ -101,7 +103,7 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
 .card-elevated{ box-shadow: var(--shadow-md) }
 
 .btn{
-  appearance:none; border:1px solid transparent; border-radius:12px; padding:12px 18px;
+  appearance:none; border:1px solid transparent; border-radius:var(--radius-btn); padding:12px 18px;
   min-height:44px; font-weight:700; font-size:14px; line-height:1; letter-spacing:-0.01em;
   cursor:pointer; display:inline-flex; align-items:center; gap:8px; justify-content:center;
   transition: all var(--dur-fast) var(--ease-out);
@@ -192,7 +194,7 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
 .brand-badge{ font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; background: rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.14); color:white; padding:3px 7px; border-radius:999px; backdrop-filter: blur(8px) }
 
 .sidebar-collapse{
-  width:28px; height:28px; border-radius:9px; border:1px solid rgba(255,255,255,.10);
+  width:28px; height:28px; border-radius:var(--radius-btn); border:1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.06); color: rgba(255,255,255,.9);
   display:grid; place-items:center; cursor:pointer; flex:0 0 28px;
   transition: all var(--dur-fast) var(--ease-out);
@@ -297,12 +299,6 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
 .user-meta{ flex:1; min-width:0 }
 .user-name{ font-weight:800; font-size:13px; color:white; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .user-email{ font-size:11.5px; color: rgba(255,255,255,.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500 }
-.user-action{
-  width:30px; height:30px; border-radius:10px; border:1px solid rgba(255,255,255,.10);
-  background: rgba(255,255,255,.06); color:white; display:grid; place-items:center; cursor:pointer;
-  transition: all var(--dur-fast) var(--ease-out);
-}
-.user-action:hover{ background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.22); color:#FECACA }
 
 /* TopBar */
 .topbar{
@@ -320,7 +316,7 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
 .topbar-actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto }
 
 .icon-btn{
-  width:40px; height:40px; border-radius:12px; border:1px solid var(--line);
+  width:40px; height:40px; border-radius:var(--radius-btn); border:1px solid var(--line);
   background:white; color:#344054; display:grid; place-items:center; cursor:pointer;
   transition: all var(--dur-fast) var(--ease-out); box-shadow: var(--shadow-xs); position:relative;
 }
@@ -468,4 +464,204 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ============ Lot 9 — boutons compacts ============ */
+.btn-mini{ min-height:30px; padding:5px 9px; font-size:12px; gap:6px }
+.btn-icon-action{
+  width:30px; height:30px; border-radius:var(--radius-btn); border:1px solid var(--line);
+  background:white; color:#475467; display:grid; place-items:center; cursor:pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.btn-icon-action:hover{ background:#F9FAFB; border-color:#CBD5E1; color:var(--ink) }
+.btn-icon-action.danger{ border-color:#FECACA; background:#FEF3F2; color:#D92D20 }
+.btn-icon-action.danger:hover{ background:#FEE4E2; border-color:#FDA29B }
+.hide-mobile{}
+@media (max-width: 768px){ .hide-mobile{ display:none !important } }
+
+/* ============ Lot 9 — menus déroulants (langue, cloche, profil) ============ */
+.menu{ position:relative }
+.menu-panneau{
+  position:absolute; top:calc(100% + 8px); right:0; z-index:60;
+  min-width:230px; background:white; border:1px solid var(--line);
+  border-radius:12px; box-shadow:var(--shadow-lg); padding:6px;
+  animation: menuIn 160ms var(--ease-out) both;
+}
+@keyframes menuIn{ from{ opacity:0; transform: translateY(-4px) } to{ opacity:1; transform: translateY(0) } }
+.menu-item{
+  width:100%; display:flex; align-items:center; gap:9px;
+  padding:9px 10px; border:none; border-radius:var(--radius-btn);
+  background:transparent; color:#344054; font-size:13px; font-weight:600;
+  cursor:pointer; text-align:left;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.menu-item:hover{ background:#F3F4F6; color:var(--ink) }
+.menu-item.is-actif{ color:#1B4E1F; background:var(--green-50) }
+.menu-item-danger{ color:#B42318 }
+.menu-item-danger:hover{ background:#FEF3F2; color:#912018 }
+.menu-item-code{
+  width:22px; text-align:center; font-size:10.5px; font-weight:800; color:var(--muted);
+  border:1px solid var(--line); border-radius:4px; padding:1px 0; background:#F9FAFB;
+}
+.menu-separateur{ height:1px; background:var(--line); margin:5px 4px }
+.menu-profil{ min-width:260px }
+.menu-profil-entete{ padding:8px 10px 10px }
+.menu-profil-nom{ font-weight:800; font-size:13.5px; color:var(--ink) }
+.menu-profil-email{ font-size:12px; color:var(--muted); margin:1px 0 6px; word-break:break-all }
+.menu-langue{ min-width:190px }
+
+/* Bouton profil (déclencheur du menu utilisateur) */
+.btn-profil{
+  display:inline-flex; align-items:center; gap:8px;
+  height:40px; padding:3px 10px 3px 3px;
+  border:1px solid var(--line); border-radius:var(--radius-btn);
+  background:white; box-shadow:var(--shadow-xs); cursor:pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.btn-profil:hover{ border-color:#CBD5E1; background:#F9FAFB; box-shadow:var(--shadow-sm) }
+.btn-profil-avatar{
+  width:32px; height:32px; border-radius:var(--radius-btn);
+  background:linear-gradient(135deg,#2E7D32,#81C784); color:white;
+  display:grid; place-items:center; font-weight:900; font-size:12px; letter-spacing:-0.02em;
+  border:1px solid rgba(255,255,255,.4);
+}
+.btn-profil-nom{ font-size:13px; font-weight:700; color:var(--ink); max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.btn-profil-chevron{ color:var(--muted2); transition: transform var(--dur) var(--ease-out) }
+.btn-profil-chevron.is-ouvert{ transform: rotate(180deg) }
+
+/* Sélecteur de langue par icône */
+.icon-btn-langue{ width:auto; padding:0 10px; gap:7px }
+.langue-code{ font-size:11px; font-weight:800; letter-spacing:0.04em; color:#344054 }
+
+/* ============ Lot 9 — cloche de notifications ============ */
+.compte-notif{
+  position:absolute; top:-5px; right:-5px; min-width:18px; height:18px; padding:0 5px;
+  border-radius:999px; background:#D92D20; color:white;
+  font-size:10.5px; font-weight:800; line-height:16px; text-align:center;
+  border:2px solid white; box-shadow:0 1px 4px rgba(217,45,32,.4);
+}
+.panneau-notif{ min-width:340px; max-width:min(380px, 92vw); padding:0 }
+.panneau-notif-entete{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:12px 12px 8px; border-bottom:1px solid var(--line-2);
+}
+.panneau-notif-liste{ max-height:360px; overflow:auto; padding:6px }
+.panneau-notif-vide{
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:26px 12px; color:var(--muted); font-size:12.5px; text-align:center;
+}
+.notif-ligne{
+  width:100%; display:flex; gap:10px; align-items:flex-start; text-align:left;
+  padding:9px 10px; border:1px solid transparent; border-radius:var(--radius-btn);
+  background:transparent; cursor:pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.notif-ligne:hover{ background:#F6F7F6 }
+.notif-ligne.non-lue{ background:#F4FBF4; border-color:#D9EDD7 }
+.notif-ligne.non-lue:hover{ background:#EDF7ED }
+.notif-icone{ margin-top:2px; flex:0 0 auto }
+.notif-corps{ display:flex; flex-direction:column; gap:2px; min-width:0; flex:1 }
+.notif-titre{ font-size:12.5px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:6px }
+.notif-point{ width:7px; height:7px; border-radius:50%; background:#2E7D32; flex:0 0 7px }
+.notif-message{
+  font-size:12px; color:var(--muted); line-height:1.45;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.notif-meta{ font-size:10.5px; color:var(--muted2) }
+.panneau-notif-pied{
+  width:100%; padding:10px; border:none; border-top:1px solid var(--line);
+  background:#F9FAFB; color:#1B4E1F; font-size:12.5px; font-weight:800; cursor:pointer;
+  border-radius:0 0 11px 11px;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.panneau-notif-pied:hover{ background:var(--green-50) }
+
+/* ============ Lot 9 — filtres segmentés ============ */
+.seg{
+  display:inline-flex; gap:2px; padding:3px; background:#F1F5F9;
+  border:1px solid var(--line); border-radius:calc(var(--radius-btn) + 3px);
+  flex-wrap:wrap;
+}
+.seg-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 12px; border:1px solid transparent; border-radius:var(--radius-btn);
+  background:transparent; color:var(--muted); font-size:12.5px; font-weight:700; cursor:pointer;
+  transition: all var(--dur-fast) var(--ease-out); white-space:nowrap;
+}
+.seg-btn:hover{ color:var(--ink) }
+.seg-btn.is-actif{
+  background:white; color:#1B4E1F; border-color:var(--green-border);
+  box-shadow:var(--shadow-xs);
+}
+.seg-badge{
+  min-width:18px; height:18px; padding:0 5px; border-radius:999px;
+  background:#D92D20; color:white; font-size:10.5px; font-weight:800; line-height:18px; text-align:center;
+}
+
+/* ============ Lot 9 — modales génériques ============ */
+.modale-fond{
+  position:fixed; inset:0; z-index:70; display:grid; place-items:center; padding:20px;
+  background:rgba(15,23,42,.46); backdrop-filter:blur(10px) saturate(1.15);
+  -webkit-backdrop-filter:blur(10px) saturate(1.15);
+  animation: modaleFondIn 220ms var(--ease-out) both;
+}
+@keyframes modaleFondIn{ from{ opacity:0 } to{ opacity:1 } }
+.modale-carte{
+  background:white; border:1px solid var(--line); border-radius:var(--radius-lg);
+  box-shadow:0 20px 60px rgba(15,23,42,.18), 0 1px 3px rgba(15,23,42,.08);
+  display:flex; flex-direction:column; max-height:min(86vh, 760px);
+  animation: modaleCarteIn 260ms var(--ease-spring) both;
+}
+@keyframes modaleCarteIn{ from{ opacity:0; transform: translateY(8px) scale(.98) } to{ opacity:1; transform: translateY(0) scale(1) } }
+.modale-entete{
+  display:flex; gap:12px; align-items:flex-start; padding:18px 18px 14px;
+  border-bottom:1px solid var(--line-2);
+}
+.modale-entete h2{ margin:0; font-size:16px; font-weight:900; letter-spacing:-0.02em; color:var(--ink) }
+.modale-entete p{ margin:2px 0 0; font-size:12.5px; color:var(--muted) }
+.modale-icone{
+  width:40px; height:40px; border-radius:12px; flex:0 0 40px;
+  background:var(--green-50); border:1px solid var(--green-border);
+  display:grid; place-items:center;
+}
+.modale-corps{ padding:18px; overflow:auto; flex:1 }
+.modale-pieds{
+  display:flex; gap:8px; justify-content:flex-end; align-items:center;
+  padding:14px 18px; border-top:1px solid var(--line-2); background:#FCFCFD;
+  border-radius:0 0 var(--radius-lg) var(--radius-lg); flex-wrap:wrap;
+}
+
+/* ============ Lot 9 — panneau de détail ============ */
+.detail-section-titre{
+  margin:0 0 8px; font-size:11px; font-weight:800; letter-spacing:0.07em;
+  text-transform:uppercase; color:var(--muted);
+}
+.detail-grille{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:10px }
+.detail-champ{
+  border:1px solid var(--line); border-radius:10px; background:#FCFCFD;
+  padding:9px 11px; min-width:0;
+}
+.detail-champ dt{ font-size:11px; font-weight:700; color:var(--muted); margin-bottom:3px }
+.detail-champ dd{ margin:0; font-size:13px; font-weight:600; color:var(--ink); overflow-wrap:anywhere }
+.detail-json summary{
+  cursor:pointer; font-size:12px; font-weight:700; color:var(--muted);
+  padding:6px 0; user-select:none;
+}
+.detail-json pre{
+  margin:6px 0 0; padding:10px 12px; background:#0F1A0F; color:#D9EDD7;
+  border-radius:10px; font-size:11.5px; line-height:1.55; overflow:auto; max-height:220px;
+  font-family:'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ============ Lot 9 — cartes de recommandation ============ */
+.reco-carte{
+  border:1px solid #EAECF0; border-left:3px solid var(--line);
+  border-radius:12px; padding:12px 14px; background:white;
+  transition: box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.reco-carte:hover{ box-shadow:var(--shadow-sm) }
+.reco-carte.non-lue{ border-left-color:var(--green); background:#FBFEFB }
+.reco-message{
+  font-size:12.5px; color:#344054; margin-top:6px; line-height:1.55;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
 }

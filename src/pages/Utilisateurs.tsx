@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, RefreshCw, ShieldCheck, Clock3 } from 'lucide-react';
+import { Search, RefreshCw, ShieldCheck, Clock3, Eye, CircleUser } from 'lucide-react';
 import { getUtilisateurs, type UtilisateurApercu } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, type Colonne } from '../components/ui/TableauDonnees';
+import { PanneauDetail } from '../components/ui/PanneauDetail';
 
 /** Badge coloré pour le rôle (valeur métier brute : PROPRIETAIRE/AGRICULTEUR). */
 function BadgeRole({ role }: { role: string }) {
@@ -53,6 +54,7 @@ export function Utilisateurs() {
   const [chargement, setChargement] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [q, setQ] = useState('');
+  const [detail, setDetail] = useState<UtilisateurApercu | null>(null);
 
   const charge = useCallback(async () => {
     setChargement(true);
@@ -115,6 +117,16 @@ export function Utilisateurs() {
         />
       ),
     },
+    {
+      cle: 'actions',
+      entete: t('commun.colonnes.actions'),
+      largeur: '1%',
+      rendu: (u) => (
+        <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${u.id}`} onClick={() => setDetail(u)}>
+          <Eye size={15} /> {t('commun.actions.details')}
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -151,6 +163,45 @@ export function Utilisateurs() {
         erreur={erreur}
         texteVide={t('utilisateurs.vide')}
         cleLigne={(u) => u.id}
+      />
+
+      <PanneauDetail
+        ouvert={detail !== null}
+        onFermer={() => setDetail(null)}
+        titre={t('detail.titreUtilisateur')}
+        sousTitre={detail?.nomComplet}
+        icone={<CircleUser size={18} color="#2E7D32" />}
+        idTest="detail-utilisateur"
+        sections={
+          detail
+            ? [
+                {
+                  titre: t('detail.informations'),
+                  champs: [
+                    { libelle: t('auth.nom'), valeur: detail.nom },
+                    { libelle: t('auth.prenom'), valeur: detail.prenom },
+                    { libelle: t('auth.nomUtilisateur'), valeur: detail.username ? `@${detail.username}` : null },
+                    { libelle: t('utilisateurs.colonnes.email'), valeur: detail.email },
+                    { libelle: t('utilisateurs.colonnes.role'), valeur: <BadgeRole role={detail.role} /> },
+                    {
+                      libelle: t('commun.colonnes.statut'),
+                      valeur: (
+                        <BadgeActivation
+                          estVerifie={detail.estVerifie}
+                          libelleActif={t('utilisateurs.actif')}
+                          libelleAttente={t('utilisateurs.enAttente')}
+                        />
+                      ),
+                    },
+                  ],
+                },
+                {
+                  titre: t('detail.technique'),
+                  champs: [{ libelle: t('detail.identifiant'), valeur: <code style={{ fontSize: 11 }}>{detail.id}</code>, large: true }],
+                },
+              ]
+            : []
+        }
       />
     </div>
   );

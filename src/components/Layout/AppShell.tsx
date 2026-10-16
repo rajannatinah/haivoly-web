@@ -3,7 +3,8 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
-import { Menu, Sprout, X } from 'lucide-react';
+import { NotificationsProvider } from './NotificationsProvider';
+import { Sprout, X } from 'lucide-react';
 
 export function AppShell() {
   const { t } = useTranslation();
@@ -59,7 +60,7 @@ export function AppShell() {
     <div className="shell">
       <div className={`shell-inner ${collapsed ? 'is-collapsed' : ''}`}>
         {/* Desktop sidebar */}
-        <Sidebar collapsed={collapsed} onToggle={toggleCollapsed} onLogout={logout} />
+        <Sidebar collapsed={collapsed} onToggle={toggleCollapsed} />
 
         {/* Mobile drawer */}
         <div className={`drawer-backdrop ${drawerOpen ? 'is-open' : ''}`} onClick={() => setDrawerOpen(false)} aria-hidden />
@@ -78,27 +79,13 @@ export function AppShell() {
               </button>
             </div>
             <div style={{ flex: 1, overflow: 'auto' }}>
-              <Sidebar collapsed={false} onToggle={() => setDrawerOpen(false)} onLogout={logout} />
+              <Sidebar collapsed={false} onToggle={() => setDrawerOpen(false)} />
             </div>
           </div>
         </div>
 
-        {/* Mobile header duplicate for extra control */}
+        <NotificationsProvider>
         <div className="main-wrap">
-          {/* Mobile top bar hidden on desktop handled by TopBar but we keep one for drawer toggle */}
-          <div className="mobile-header" style={{ height: 56, background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #E5E7EB', display: 'none', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', position: 'sticky', top: 0, zIndex: 30 } as any}>
-            <button className="icon-btn" onClick={() => setDrawerOpen(true)} aria-label={t('commun.actions.ouvrirMenu')}>
-              <Menu size={18} />
-            </button>
-            <div style={{ fontWeight: 900, letterSpacing: -0.02, display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span style={{ width: 28, height: 28, borderRadius: 10, background: '#2E7D32', display: 'grid', placeItems: 'center' }}>
-                <Sprout size={16} color="white" />
-              </span>
-              Haivoly
-            </div>
-            <span style={{ width: 40 }} />
-          </div>
-
           <TopBar onMenu={() => setDrawerOpen(true)} onLogout={logout} />
           <main className="main-content">
             <div className="page">
@@ -118,6 +105,7 @@ export function AppShell() {
             </div>
           </footer>
         </div>
+        </NotificationsProvider>
       </div>
     </div>
   );

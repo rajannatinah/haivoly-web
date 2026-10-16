@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, Download, Eye, RefreshCw } from 'lucide-react';
-import { getActions, normaliseListe } from '../services/api';
+import { Search, Filter, Download, Eye, RefreshCw, Activity } from 'lucide-react';
+import { getAction, getActions, normaliseListe } from '../services/api';
+import { PanneauDetail } from '../components/ui/PanneauDetail';
 import { ErreurBloc, VideBloc, messageErreur } from '../components/ui/ErrorState';
 import { formaterDateHeure } from '../i18n';
 import { detailDestinataire, libelleDestinataire } from '../utils/destinataire';
@@ -9,6 +11,8 @@ import type { Action } from '../types';
 
 export function Actions() {
   const { t } = useTranslation();
+  const nav = useNavigate();
+  const { id: idRoute } = useParams<{ id?: string }>();
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('ALL');
   const [type, setType] = useState('ALL');
@@ -18,6 +22,28 @@ export function Actions() {
 
   const [erreur, setErreur] = useState<string | null>(null);
   const [chargement, setChargement] = useState(false);
+  const [detail, setDetail] = useState<Action | null>(null);
+
+  /** Lien profond `/actions/:id` : la fiche s'ouvre au-dessus de la liste. */
+  useEffect(() => {
+    if (!idRoute) return;
+    let actif = true;
+    getAction(idRoute)
+      .then((r) => {
+        if (actif) setDetail(((r as { data?: Action })?.data ?? r) as Action);
+      })
+      .catch(() => {
+        if (actif) setErreur(messageErreur(new Error(idRoute)));
+      });
+    return () => {
+      actif = false;
+    };
+  }, [idRoute]);
+
+  const fermerDetail = () => {
+    setDetail(null);
+    if (idRoute) nav('/actions', { replace: true });
+  };
 
   const load = useCallback(async () => {
     setChargement(true);
@@ -125,9 +151,9 @@ export function Actions() {
                   <td style={{ textAlign: 'center', fontWeight: 700 }}>{a.retryCount}</td>
                   <td>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', alignItems: 'center' }}>
-                      <a href={`/actions/${a.id}`} className="btn btn-ghost" style={{ padding: '6px 8px', fontSize: 12 }}>
-                        <Eye size={16} /> {t('commun.actions.details')}
-                      </a>
+                      <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${a.id}`} onClick={() => setDetail(a)}>
+                        <Eye size={15} /> {t('commun.actions.details')}
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -150,6 +176,67 @@ export function Actions() {
           </div>
         </div>
       </div>
+
+      <PanneauDetail
+        ouvert={detail !== null}
+        onFermer={fermerDetail}
+        titre={t('detail.titreAction')}
+        sousTitre={detail ? `${detail.actionType} • ${detail.entityType}` : undefined}
+        icone={<Activity size={18} color="#2E7D32" />}
+        idTest="detail-action"
+        sections={
+          detail
+            ? [
+                {
+                  titre: t('detail.informations'),
+                  champs: [
+                    { libelle: t('commun.colonnes.utilisateur'), valeur: libelleDestinataire(detail) || detail.userId },
+                    {
+                      libelle: t('commun.colonnes.action'),
+                      valeur: <span className="badge badge-primary">{detail.actionType}</span>,
+                    },
+                    { libelle: t('commun.colonnes.entite'), valeur: <span className="badge">{detail.entityType}</span> },
+                    { libelle: t('actions.entiteId'), valeur: detail.entityId ? <code style={{ fontSize: 11 }}>{detail.entityId}</code> : null },
+                    {
+                      libelle: t('commun.colonnes.sync'),
+                      valeur: (
+                        <span
+                          className={`badge ${
+                            detail.syncStatus === 'SYNCED'
+                              ? 'badge-success'
+                              : detail.syncStatus === 'PENDING'
+                                ? 'badge-warning'
+                                : detail.syncStatus === 'FAILED'
+                                  ? 'badge-error'
+                                  : 'badge-info'
+                          }`}
+                        >
+                          {detail.syncStatus}
+                        </span>
+                      ),
+                    },
+                    { libelle: t('commun.colonnes.retries'), valeur: detail.retryCount },
+                    { libelle: t('commun.colonnes.date'), valeur: formaterDateHeure(detail.timestamp) },
+                    { libelle: t('actions.appareil'), valeur: detail.deviceId },
+                  ],
+                  json: detail.payload ? { libelle: t('actions.payload'), valeur: detail.payload } : undefined,
+                },
+                {
+                  titre: t('detail.dates'),
+                  champs: [
+                    { libelle: t('commun.colonnes.creeLe'), valeur: formaterDateHeure(detail.createdAt) },
+                    { libelle: t('commun.colonnes.modifieeLe'), valeur: formaterDateHeure(detail.updatedAt) },
+                  ],
+                  json: detail.metadata ? { libelle: t('detail.metadata'), valeur: detail.metadata } : undefined,
+                },
+                {
+                  titre: t('detail.technique'),
+                  champs: [{ libelle: t('detail.identifiant'), valeur: <code style={{ fontSize: 11 }}>{detail.id}</code>, large: true }],
+                },
+              ]
+            : []
+        }
+      />
     </div>
   );
 }

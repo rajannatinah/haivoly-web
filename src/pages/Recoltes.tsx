@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Eye, Wheat } from 'lucide-react';
 import { getRecoltes, normaliseListe } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, formateDate, formateNombre, type Colonne } from '../components/ui/TableauDonnees';
-import { formaterDevise } from '../i18n';
+import { formaterDevise, formaterDateHeure } from '../i18n';
+import { PanneauDetail } from '../components/ui/PanneauDetail';
 import type { Recolte } from '../types';
 
 export function Recoltes() {
@@ -13,6 +14,7 @@ export function Recoltes() {
   const [chargement, setChargement] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [q, setQ] = useState('');
+  const [detail, setDetail] = useState<Recolte | null>(null);
 
   const charge = useCallback(async () => {
     setChargement(true);
@@ -59,6 +61,16 @@ export function Recoltes() {
     { cle: 'prix', entete: t('commun.colonnes.prix'), rendu: (r) => formateNombre(r.prixVente) },
     { cle: 'cout', entete: t('commun.colonnes.cout'), rendu: (r) => formateNombre(r.coutRecolte as unknown as number) },
     { cle: 'description', entete: t('commun.colonnes.description'), rendu: (r) => r.description || '—' },
+    {
+      cle: 'actions',
+      entete: t('commun.colonnes.actions'),
+      largeur: '1%',
+      rendu: (r) => (
+        <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${r.id}`} onClick={() => setDetail(r)}>
+          <Eye size={15} /> {t('commun.actions.details')}
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -114,6 +126,55 @@ export function Recoltes() {
         erreur={erreur}
         texteVide={t('recoltes.vide')}
         cleLigne={(r) => r.id}
+      />
+
+      <PanneauDetail
+        ouvert={detail !== null}
+        onFermer={() => setDetail(null)}
+        titre={t('detail.titreRecolte')}
+        sousTitre={detail?.culture?.nom}
+        icone={<Wheat size={18} color="#2E7D32" />}
+        idTest="detail-recolte"
+        sections={
+          detail
+            ? [
+                {
+                  titre: t('detail.informations'),
+                  champs: [
+                    { libelle: t('commun.colonnes.culture'), valeur: detail.culture?.nom },
+                    { libelle: t('commun.colonnes.date'), valeur: formateDate(detail.dateRecolte) },
+                    { libelle: t('commun.colonnes.quantite'), valeur: formateNombre(detail.quantite, detail.unite) },
+                    { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                  ],
+                },
+                {
+                  titre: t('detail.finances'),
+                  champs: [
+                    { libelle: t('commun.colonnes.prix'), valeur: detail.prixVente != null ? formaterDevise(detail.prixVente) : null },
+                    { libelle: t('commun.colonnes.cout'), valeur: detail.coutRecolte != null ? formaterDevise(detail.coutRecolte) : null },
+                    {
+                      libelle: t('recoltes.margeBrute'),
+                      valeur:
+                        detail.prixVente != null && detail.coutRecolte != null
+                          ? formaterDevise((detail.prixVente as number) - (detail.coutRecolte as number))
+                          : null,
+                    },
+                  ],
+                },
+                {
+                  titre: t('detail.dates'),
+                  champs: [
+                    { libelle: t('commun.colonnes.creeLe'), valeur: formaterDateHeure(detail.creeA) },
+                    { libelle: t('commun.colonnes.modifieeLe'), valeur: formaterDateHeure(detail.modifieA) },
+                  ],
+                },
+                {
+                  titre: t('detail.technique'),
+                  champs: [{ libelle: t('detail.identifiant'), valeur: <code style={{ fontSize: 11 }}>{detail.id}</code>, large: true }],
+                },
+              ]
+            : []
+        }
       />
     </div>
   );

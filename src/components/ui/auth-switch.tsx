@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type SyntheticEvent } from 'react';
+import logoHaivoly from '../../assets/logo-haivoly.png';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,7 +15,6 @@ import {
   Mail,
   Phone,
   ShieldCheck,
-  Sprout,
   User,
   UserPlus,
 } from 'lucide-react';
@@ -95,10 +95,10 @@ export default function AuthSwitch() {
     setLoginError('');
     setSignupError('');
     if (nextIsSignUp) setSignupSuccess('');
-    navigate(nextIsSignUp ? '/register' : '/login');
+    void navigate(nextIsSignUp ? '/register' : '/login');
   };
 
-  const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
+  const submitLogin = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoginError('');
     setIsLoggingIn(true);
@@ -106,7 +106,7 @@ export default function AuthSwitch() {
     try {
       const response = await loginWeb(loginEmail.trim().toLowerCase(), loginPassword);
       localStorage.setItem('haivoly_web_token', response.access_token);
-      navigate('/', { replace: true });
+      void navigate('/', { replace: true });
     } catch (error: unknown) {
       setLoginError(messageFromError(error) || t('auth.identifiantsInvalides'));
     } finally {
@@ -114,7 +114,7 @@ export default function AuthSwitch() {
     }
   };
 
-  const submitSignup = async (event: FormEvent<HTMLFormElement>) => {
+  const submitSignup = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSignupError('');
     setSignupSuccess('');
@@ -164,19 +164,13 @@ export default function AuthSwitch() {
       >
         <div className="auth-switch__forms-container">
           <div className="auth-switch__signin-signup">
+            {/* ── LOGIN FORM (unchanged) ── */}
             <form
               className="auth-switch__form auth-switch__form--sign-in"
               onSubmit={submitLogin}
               aria-hidden={isSignUp}
             >
               <div className="auth-switch__form-content">
-                <div className="auth-switch__brand-lockup">
-                  <span className="auth-switch__brand-copy">
-                    <strong>{t('auth.titre')}</strong>
-                    <span>{t('auth.sousTitre')}</span>
-                  </span>
-                </div>
-
                 <h1 className="auth-switch__title">{t('auth.formTitre')}</h1>
                 <p className="auth-switch__form-description">{t('auth.formSousTitre')}</p>
 
@@ -252,19 +246,13 @@ export default function AuthSwitch() {
               </div>
             </form>
 
+            {/* ── SIGNUP FORM (spacing improved) ── */}
             <form
-              className="auth-switch__form auth-switch__form--sign-up"
+              className="auth-switch__form auth-switch__form--sign-up "
               onSubmit={submitSignup}
               aria-hidden={!isSignUp}
             >
               <div className="auth-switch__form-content auth-switch__form-content--signup">
-                <div className="auth-switch__brand-lockup auth-switch__brand-lockup--compact">
-                  <span className="auth-switch__brand-copy">
-                    <strong>{t('auth.titre')}</strong>
-                    <span>{t('auth.creerCompte')}</span>
-                  </span>
-                </div>
-
                 <h1 className="auth-switch__title auth-switch__title--signup">{t('auth.inscription')}</h1>
                 <p className="auth-switch__form-description">{t('auth.inscriptionSousTitre')}</p>
 
@@ -275,15 +263,16 @@ export default function AuthSwitch() {
                   </div>
                 )}
                 {signupSuccess && (
-                  <div className="auth-switch__notice auth-switch__notice--success" role="status">
+                  <output className="auth-switch__notice auth-switch__notice--success">
                     <CheckCircle2 size={18} aria-hidden="true" />
                     <span>{signupSuccess}</span>
                     <button type="button" onClick={() => switchMode(false)}>
                       {t('auth.seConnecter')}
                     </button>
-                  </div>
+                  </output>
                 )}
 
+                {/* ── Nom / Prénom ── */}
                 <div className="auth-switch__field-grid">
                   <div className="auth-switch__field">
                     <label htmlFor="haivoly-signup-nom">
@@ -320,6 +309,7 @@ export default function AuthSwitch() {
                   </div>
                 </div>
 
+                {/* ── Email / Username ── */}
                 <div className="auth-switch__field-grid">
                   <div className="auth-switch__field">
                     <label htmlFor="haivoly-signup-email">
@@ -358,6 +348,7 @@ export default function AuthSwitch() {
                   </div>
                 </div>
 
+                {/* ── Téléphone / Rôle ── */}
                 <div className="auth-switch__field-grid">
                   <div className="auth-switch__field">
                     <label htmlFor="haivoly-signup-phone">{t('auth.telephone')}</label>
@@ -393,6 +384,7 @@ export default function AuthSwitch() {
                   </div>
                 </div>
 
+                {/* ── Langue / Mot de passe ── */}
                 <div className="auth-switch__field-grid">
                   <div className="auth-switch__field">
                     <label htmlFor="haivoly-signup-language">{t('auth.langue')}</label>
@@ -442,6 +434,7 @@ export default function AuthSwitch() {
                   </div>
                 </div>
 
+                {/* ── Confirmer mot de passe ── */}
                 <div className="auth-switch__field">
                   <label htmlFor="haivoly-signup-confirm-password">
                     {t('auth.confirmerMotDePasse')} <span className="auth-switch__required" aria-hidden="true">*</span>
@@ -474,7 +467,11 @@ export default function AuthSwitch() {
 
                 <p className="auth-switch__password-hint">{t('auth.mdpMin')}</p>
 
-                <button className="auth-switch__submit auth-switch__submit--signup" type="submit" disabled={isRegistering}>
+                <button
+                  className="auth-switch__submit auth-switch__submit--signup"
+                  type="submit"
+                  disabled={isRegistering}
+                >
                   {isRegistering ? (
                     <Loader2 className="auth-switch__spinner" size={18} aria-hidden="true" />
                   ) : (
@@ -496,12 +493,12 @@ export default function AuthSwitch() {
         </div>
 
         <div className="auth-switch__panels-container">
-          <section className="auth-switch__panel auth-switch__panel--left">
+          <section className="auth-switch__panel auth-switch__panel--left" aria-label={t('auth.titre')}>
             <div className="auth-switch__panel-content auth-switch__panel-content--left">
-              <span className="auth-switch__panel-emblem" aria-hidden="true">
-                <Sprout size={30} strokeWidth={2.1} />
+              <span className="auth-switch__panel-emblem auth-switch__panel-emblem--logo" aria-hidden="true">
+                <img className="auth-switch__panel-logo" src={logoHaivoly} alt="" />
               </span>
-              <span className="auth-switch__panel-kicker">{t('auth.titre')}</span>
+              <span className="auth-switch__panel-soustitre">{t('auth.sousTitre')}</span>
               <h2>{t('auth.nouveauIci')}</h2>
               <p>{t('auth.messageInscription')}</p>
               <button
@@ -516,12 +513,12 @@ export default function AuthSwitch() {
             </div>
           </section>
 
-          <section className="auth-switch__panel auth-switch__panel--right">
+          <section className="auth-switch__panel auth-switch__panel--right" aria-label={t('auth.titre')}>
             <div className="auth-switch__panel-content auth-switch__panel-content--right">
-              <span className="auth-switch__panel-emblem" aria-hidden="true">
-                <Sprout size={30} strokeWidth={2.1} />
+              <span className="auth-switch__panel-emblem auth-switch__panel-emblem--logo" aria-hidden="true">
+                <img className="auth-switch__panel-logo" src={logoHaivoly} alt="" />
               </span>
-              <span className="auth-switch__panel-kicker">{t('auth.titre')}</span>
+              <span className="auth-switch__panel-soustitre">{t('auth.sousTitre')}</span>
               <h2>{t('auth.dejaParmiNous')}</h2>
               <p>{t('auth.messageConnexion')}</p>
               <button

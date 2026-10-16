@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Eye } from 'lucide-react';
 import { agregeObservations } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, formateDate, type Colonne } from '../components/ui/TableauDonnees';
+import { PanneauDetail } from '../components/ui/PanneauDetail';
+import { formaterDateHeure } from '../i18n';
 import type { Observation } from '../types';
 
 export function Observations() {
@@ -13,6 +15,7 @@ export function Observations() {
   const [chargement, setChargement] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [q, setQ] = useState('');
+  const [detail, setDetail] = useState<Observation | null>(null);
 
   const charge = useCallback(async () => {
     setChargement(true);
@@ -49,6 +52,16 @@ export function Observations() {
     { cle: 'culture', entete: t('commun.colonnes.culture'), rendu: (o) => o.cultureNom || '—' },
     { cle: 'date', entete: t('commun.colonnes.date'), rendu: (o) => formateDate(o.date) },
     { cle: 'modifie', entete: t('commun.colonnes.modifieeLe'), rendu: (o) => formateDate(o.modifieA) },
+    {
+      cle: 'actions',
+      entete: t('commun.colonnes.actions'),
+      largeur: '1%',
+      rendu: (o) => (
+        <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${o.id}`} onClick={() => setDetail(o)}>
+          <Eye size={15} /> {t('commun.actions.details')}
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -86,6 +99,37 @@ export function Observations() {
         texteVide={t('observations.vide')}
         avertissements={avertissements}
         cleLigne={(o) => o.id}
+      />
+
+      <PanneauDetail
+        ouvert={detail !== null}
+        onFermer={() => setDetail(null)}
+        titre={t('detail.titreObservation')}
+        sousTitre={detail?.cultureNom}
+        icone={<Eye size={18} color="#2E7D32" />}
+        idTest="detail-observation"
+        sections={
+          detail
+            ? [
+                {
+                  titre: t('detail.informations'),
+                  champs: [
+                    { libelle: t('commun.colonnes.culture'), valeur: detail.cultureNom },
+                    { libelle: t('commun.colonnes.date'), valeur: formateDate(detail.date) },
+                    { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                  ],
+                },
+                {
+                  titre: t('detail.dates'),
+                  champs: [{ libelle: t('commun.colonnes.modifieeLe'), valeur: formaterDateHeure(detail.modifieA) }],
+                },
+                {
+                  titre: t('detail.technique'),
+                  champs: [{ libelle: t('detail.identifiant'), valeur: <code style={{ fontSize: 11 }}>{detail.id}</code>, large: true }],
+                },
+              ]
+            : []
+        }
       />
     </div>
   );

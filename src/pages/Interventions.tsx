@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Eye, Wrench } from 'lucide-react';
 import { agregeInterventions } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, formateDate, formateNombre, type Colonne } from '../components/ui/TableauDonnees';
+import { PanneauDetail } from '../components/ui/PanneauDetail';
+import { formaterDateHeure } from '../i18n';
 import type { Intervention } from '../types';
 
 const TYPES_INTERVENTION = [
@@ -25,6 +27,7 @@ export function Interventions() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [q, setQ] = useState('');
   const [type, setType] = useState('ALL');
+  const [detail, setDetail] = useState<Intervention | null>(null);
 
   const charge = useCallback(async () => {
     setChargement(true);
@@ -66,6 +69,16 @@ export function Interventions() {
     { cle: 'quantite', entete: t('commun.colonnes.quantite'), rendu: (i) => formateNombre(i.quantite, i.unite) },
     { cle: 'cout', entete: t('commun.colonnes.cout'), rendu: (i) => formateNombre(i.cout) },
     { cle: 'date', entete: t('commun.colonnes.date'), rendu: (i) => formateDate(i.date) },
+    {
+      cle: 'actions',
+      entete: t('commun.colonnes.actions'),
+      largeur: '1%',
+      rendu: (i) => (
+        <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${i.id}`} onClick={() => setDetail(i)}>
+          <Eye size={15} /> {t('commun.actions.details')}
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -111,6 +124,45 @@ export function Interventions() {
         texteVide={t('interventions.vide')}
         avertissements={avertissements}
         cleLigne={(i) => i.id}
+      />
+
+      <PanneauDetail
+        ouvert={detail !== null}
+        onFermer={() => setDetail(null)}
+        titre={t('detail.titreIntervention')}
+        sousTitre={detail ? `${detail.type}${detail.cultureNom ? ` • ${detail.cultureNom}` : ''}` : undefined}
+        icone={<Wrench size={18} color="#2E7D32" />}
+        idTest="detail-intervention"
+        sections={
+          detail
+            ? [
+                {
+                  titre: t('detail.informations'),
+                  champs: [
+                    { libelle: t('commun.colonnes.type'), valeur: detail.type },
+                    { libelle: t('commun.colonnes.culture'), valeur: detail.cultureNom },
+                    { libelle: t('commun.colonnes.statut'), valeur: detail.statut },
+                    { libelle: t('commun.colonnes.produit'), valeur: detail.produit },
+                    { libelle: t('commun.colonnes.quantite'), valeur: formateNombre(detail.quantite, detail.unite) },
+                    { libelle: t('commun.colonnes.cout'), valeur: formateNombre(detail.cout) },
+                    { libelle: t('commun.colonnes.date'), valeur: formateDate(detail.date) },
+                    { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                  ],
+                },
+                {
+                  titre: t('detail.dates'),
+                  champs: [
+                    { libelle: t('commun.colonnes.creeLe'), valeur: formaterDateHeure(detail.creeA) },
+                    { libelle: t('commun.colonnes.modifieeLe'), valeur: formaterDateHeure(detail.modifieA) },
+                  ],
+                },
+                {
+                  titre: t('detail.technique'),
+                  champs: [{ libelle: t('detail.identifiant'), valeur: <code style={{ fontSize: 11 }}>{detail.id}</code>, large: true }],
+                },
+              ]
+            : []
+        }
       />
     </div>
   );
