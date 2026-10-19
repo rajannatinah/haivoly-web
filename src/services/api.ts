@@ -111,6 +111,33 @@ export async function getUtilisateurs(): Promise<UtilisateurApercu[]> {
   return liste(res.data) as UtilisateurApercu[];
 }
 
+export interface CreerComptePayload {
+  nom: string;
+  prenom?: string;
+  email: string;
+  telephone?: string;
+  username?: string;
+  langue?: 'fr' | 'en' | 'mg';
+}
+
+export interface CreerCompteResultat {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  message: string;
+  activationProgrammee: boolean;
+}
+
+export async function creerUtilisateur(
+  payload: CreerComptePayload,
+): Promise<CreerCompteResultat> {
+  const res = await api.post('/users/creer-compte', payload);
+  const corps = res.data as { data?: CreerCompteResultat } & Partial<CreerCompteResultat>;
+  // Tolère les deux formes d'enveloppe (interceptor éventuel ou corps direct).
+  return (corps.data ?? corps) as CreerCompteResultat;
+}
+
 export interface ProfilUtilisateur {
   id: string;
   nom: string;

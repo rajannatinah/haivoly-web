@@ -187,7 +187,14 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
   box-shadow: 0 6px 20px rgba(46,125,50,.35), inset 0 1px 0 rgba(255,255,255,.25);
   position:relative; overflow:hidden;
 }
-.brand-mark::after{ content:""; position:absolute; inset:1px; border-radius:11px; border:1px solid rgba(255,255,255,.18); pointer-events:none }
+/* Logo officiel dans le côté : badge blanc (comme l'écran de connexion) pour
+   garder le PNG lisible sur le fond sombre de la barre latérale. */
+/* Logo officiel (PNG vraiment transparent) : puce claire uniquement parce
+   que la barre laterale est tres foncee (contraste du vert profond du logo).
+   Sur fond clair, il est pose tel quel, sans bloc blanc. */
+.brand-mark--logo{ background:#FFFFFF }
+.brand-logo{ display:block; width:30px; height:auto; max-width:none }
+.brand-mark::after{ content:""; position:absolute; inset:1px; border-radius:11px; pointer-events:none }
 .brand-text{ display:flex; flex-direction:column; min-width:0; flex:1 }
 .brand-title{ font-weight:900; letter-spacing:-0.03em; line-height:1; color:white; font-size:16px; display:flex; align-items:center; gap:8px }
 .brand-subtitle{ font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,.62); margin-top:2px }
@@ -233,17 +240,17 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
   box-shadow: 0 4px 16px rgba(0,0,0,.18), 0 1px 2px rgba(0,0,0,.10);
   font-weight:800;
 }
-.nav-item.is-active .nav-icon{ color: var(--green); background: var(--green-50); border-color: var(--green-border) }
+.nav-item.is-active .nav-icon{ color: var(--green); background: var(--green-50) }
 .nav-item.is-active .nav-badge{ background:#0F172A; color:white; border-color:#0F172A }
 
 .nav-icon{
   width:32px; height:32px; border-radius:10px;
   display:grid; place-items:center; flex:0 0 32px;
-  background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.06);
   color: rgba(255,255,255,.85);
   transition: all var(--dur-fast) var(--ease-out);
 }
-.nav-item:hover .nav-icon{ background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.10) }
+.nav-item:hover .nav-icon{ background: rgba(255,255,255,.10) }
 
 .nav-label{ flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out) }
 .nav-badge{
@@ -316,11 +323,11 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
 .topbar-actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto }
 
 .icon-btn{
-  width:40px; height:40px; border-radius:var(--radius-btn); border:1px solid var(--line);
-  background:white; color:#344054; display:grid; place-items:center; cursor:pointer;
-  transition: all var(--dur-fast) var(--ease-out); box-shadow: var(--shadow-xs); position:relative;
+  width:40px; height:40px; border-radius:var(--radius-btn); border:1px solid transparent;
+  background:transparent; color:#344054; display:grid; place-items:center; cursor:pointer;
+  transition: all var(--dur-fast) var(--ease-out); position:relative;
 }
-.icon-btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-sm); border-color:#CBD5E1; background:#F9FAFB }
+.icon-btn:hover{ transform: translateY(-1px); background:#F4F6F4 }
 .icon-btn:active{ transform: translateY(0) scale(0.98) }
 .icon-btn.has-dot::after{
   content:""; position:absolute; top:8px; right:9px; width:8px; height:8px; border-radius:50%;
@@ -514,11 +521,11 @@ html{scrollbar-width:thin;scrollbar-color:#D0D5DD transparent}
 .btn-profil{
   display:inline-flex; align-items:center; gap:8px;
   height:40px; padding:3px 10px 3px 3px;
-  border:1px solid var(--line); border-radius:var(--radius-btn);
-  background:white; box-shadow:var(--shadow-xs); cursor:pointer;
+  border:1px solid transparent; border-radius:var(--radius-btn);
+  background:transparent; cursor:pointer;
   transition: all var(--dur-fast) var(--ease-out);
 }
-.btn-profil:hover{ border-color:#CBD5E1; background:#F9FAFB; box-shadow:var(--shadow-sm) }
+.btn-profil:hover{ background:#F4F6F4 }
 .btn-profil-avatar{
   width:32px; height:32px; border-radius:var(--radius-btn);
   background:linear-gradient(135deg,#2E7D32,#81C784); color:white;

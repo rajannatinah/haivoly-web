@@ -173,8 +173,8 @@
   gap: 12px;
 }
 
-/* Logo officiel Haivoly, porté par le panneau sans formulaire : badge blanc
-   pour le contraste sur le dégradé vert, fond gris clair du PNG fondu. */
+/* Logo officiel Haivoly (PNG a transparence reelle) : petite puce claire
+   requise sur le degrade vert fonce pour la lisibilite du vert profond. */
 .auth-switch__panel-emblem.auth-switch__panel-emblem--logo {
   align-self: center;
   justify-self: center;
@@ -195,7 +195,6 @@
      auto, ce pourcentage créait une référence circulaire (logo minuscule). */
   max-width: none;
   height: auto;
-  mix-blend-mode: multiply;
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -378,6 +377,12 @@
 
 .auth-switch__form--sign-up .auth-switch__field-grid {
   gap: 12px 14px;
+  /* Regroupement en carte : les libellés restent visibles et les paires de
+     champs se lisent comme un bloc, même en défilant le formulaire mobile. */
+  background: #f7faf7;
+  border: 1px solid #e8f0e8;
+  border-radius: 14px;
+  padding: 12px 12px 14px;
 }
 
 .auth-switch__form--sign-up .auth-switch__field {
@@ -404,8 +409,11 @@
 
 .auth-switch__form--sign-up .auth-switch__field > label {
   margin-bottom: 5px;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1e3324;
   line-height: 1.3;
+  letter-spacing: 0.01em;
 }
 
 .auth-switch__form--sign-up .auth-switch__reveal {

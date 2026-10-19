@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   Activity,
   Sparkles,
-  Sprout,
   ChevronLeft,
   Map,
   TreePine,
@@ -14,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useUtilisateur } from './UserProvider';
+import logoHaivoly from '../../assets/logo-haivoly.png';
 
 interface Props {
   collapsed: boolean;
@@ -24,7 +24,9 @@ const NAV = [
   { to: '/', label: 'navigation.dashboard', icon: LayoutDashboard, desc: 'navigation.vueEnsemble' },
   { to: '/actions', label: 'navigation.actionsMobiles', icon: Activity, desc: 'navigation.fluxSync' },
   { to: '/recommandations', label: 'navigation.recommandations', icon: Sparkles, desc: 'navigation.versMobile' },
-  { to: '/utilisateurs', label: 'navigation.utilisateurs', icon: Users, desc: 'navigation.perimetreComptes' },
+  // La création et l'administration des comptes sont réservées au propriétaire
+  // (également vérifiées côté serveur : 403 sinon).
+  { to: '/utilisateurs', label: 'navigation.utilisateurs', icon: Users, desc: 'navigation.perimetreComptes', proprietaireUniquement: true },
   { to: '/parcelles', label: 'navigation.parcelles', icon: Map, desc: 'navigation.geometrie' },
   { to: '/cultures', label: 'navigation.cultures', icon: TreePine, desc: 'navigation.cycleVie' },
   { to: '/interventions', label: 'navigation.interventions', icon: Wrench, desc: 'navigation.travaux' },
@@ -36,15 +38,20 @@ const NAV = [
 export function Sidebar({ collapsed, onToggle }: Readonly<Props>) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
-  const { utilisateur, chargement } = useUtilisateur();
+  const { utilisateur } = useUtilisateur();
+  const estProprietaire = utilisateur?.role === 'PROPRIETAIRE';
+
+  // Entrée « Utilisateurs » masquée tant que le rôle propriétaire n'est pas
+  // confirmé (pendant le chargement ou pour les agriculteurs).
+  const navigation = NAV.filter((item) => !item.proprietaireUniquement || estProprietaire);
 
   return (
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`} aria-label={t('navigation.navigationPrincipale')}>
       <div className="sidebar-inner">
         {/* Brand */}
         <div className="sidebar-brand">
-          <div className="brand-mark" aria-hidden>
-            <Sprout size={18} color="white" strokeWidth={2.2} />
+          <div className="brand-mark brand-mark--logo" aria-hidden>
+            <img className="brand-logo" src={logoHaivoly} alt="" />
           </div>
           <div className="brand-text">
             <div className="brand-title">
@@ -64,7 +71,7 @@ export function Sidebar({ collapsed, onToggle }: Readonly<Props>) {
 
         {/* Primary nav */}
         <nav className="nav" aria-label={t('navigation.principal')}>
-          {NAV.map((item) => {
+          {navigation.map((item) => {
             const isActive = pathname === item.to || (item.to !== '/' && pathname.startsWith(item.to.split('?')[0]));
             return (
               <NavLink

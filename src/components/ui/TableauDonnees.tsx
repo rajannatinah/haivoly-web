@@ -36,96 +36,104 @@ export function TableauDonnees<T>({
   surLigne,
 }: Readonly<Props<T>>) {
   const { t } = useTranslation();
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {erreur ? (
-        <ErreurBloc erreur={erreur} />
-      ) : chargement ? (
-        <div className="card" style={{ padding: 28, textAlign: 'center', color: '#667085' }}>
-          {t('commun.etats.chargement')}
-        </div>
-      ) : lignes.length === 0 ? (
-        <VideBloc texte={texteVide} />
-      ) : (
-        <>
-          {avertissements && avertissements.length > 0 && (
-            <div
-              className="card"
-              role="status"
-              style={{
-                padding: '10px 12px',
-                borderLeft: '3px solid #f79009',
-                fontSize: 12,
-                color: '#7a2e0e',
-                background: '#fffcf5',
-              }}
-            >
-              {t('commun.etats.affichagePartiel', { count: avertissements.length })}
-              <details style={{ marginTop: 6 }}>
-                <summary style={{ cursor: 'pointer' }}>{t('commun.etats.detailAvertissements')}</summary>
-                <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
-                  {avertissements.slice(0, 10).map((a, i) => (
-                    <li key={i}>{a}</li>
-                  ))}
-                  {avertissements.length > 10 && <li>{t('commun.etats.etAutres', { count: avertissements.length - 10 })}</li>}
-                </ul>
-              </details>
-            </div>
-          )}
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead>
-                  <tr style={{ background: '#f9fafb', textAlign: 'left' }}>
-                    {colonnes.map((c) => (
-                      <th
-                        key={c.cle}
-                        style={{
-                          padding: '10px 12px',
-                          fontWeight: 600,
-                          color: '#475467',
-                          borderBottom: '1px solid #eaecf0',
-                          whiteSpace: 'nowrap',
-                          width: c.largeur,
-                        }}
-                      >
-                        {c.entete}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {lignes.map((ligne) => (
-                    <tr
-                      key={cleLigne(ligne)}
-                      onClick={surLigne ? () => surLigne(ligne) : undefined}
+  let contenu: ReactNode;
+
+  if (erreur) {
+    contenu = <ErreurBloc erreur={erreur} />;
+  } else if (chargement) {
+    contenu = (
+      <div className="card" style={{ padding: 28, textAlign: 'center', color: '#667085' }}>
+        {t('commun.etats.chargement')}
+      </div>
+    );
+  } else if (lignes.length === 0) {
+    contenu = <VideBloc texte={texteVide} />;
+  } else {
+    contenu = (
+      <>
+        {avertissements && avertissements.length > 0 && (
+          <output
+            className="card"
+            style={{
+              display: 'block',
+              padding: '10px 12px',
+              borderLeft: '3px solid #f79009',
+              fontSize: 12,
+              color: '#7a2e0e',
+              background: '#fffcf5',
+            }}
+          >
+            {t('commun.etats.affichagePartiel', { count: avertissements.length })}
+            <details style={{ marginTop: 6 }}>
+              <summary style={{ cursor: 'pointer' }}>{t('commun.etats.detailAvertissements')}</summary>
+              <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
+                {avertissements.slice(0, 10).map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+                {avertissements.length > 10 && <li>{t('commun.etats.etAutres', { count: avertissements.length - 10 })}</li>}
+              </ul>
+            </details>
+          </output>
+        )}
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: '#f9fafb', textAlign: 'left' }}>
+                  {colonnes.map((c) => (
+                    <th
+                      key={c.cle}
                       style={{
-                        cursor: surLigne ? 'pointer' : 'default',
-                        borderBottom: '1px solid #f2f4f7',
+                        padding: '10px 12px',
+                        fontWeight: 600,
+                        color: '#475467',
+                        borderBottom: '1px solid #eaecf0',
+                        whiteSpace: 'nowrap',
+                        width: c.largeur,
                       }}
                     >
-                      {colonnes.map((c) => (
-                        <td key={c.cle} style={{ padding: '10px 12px', verticalAlign: 'top' }}>
-                          {c.rendu(ligne)}
-                        </td>
-                      ))}
-                    </tr>
+                      {c.entete}
+                    </th>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </tr>
+              </thead>
+              <tbody>
+                {lignes.map((ligne) => (
+                  <tr
+                    key={cleLigne(ligne)}
+                    onClick={surLigne ? () => surLigne(ligne) : undefined}
+                    style={{
+                      cursor: surLigne ? 'pointer' : 'default',
+                      borderBottom: '1px solid #f2f4f7',
+                    }}
+                  >
+                    {colonnes.map((c) => (
+                      <td key={c.cle} style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                        {c.rendu(ligne)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div style={{ fontSize: 12, color: '#667085' }}>
-            {lignes.length} ligne{lignes.length > 1 ? 's' : ''}
-          </div>
-        </>
-      )}
+        </div>
+        <div style={{ fontSize: 12, color: '#667085' }}>
+          {lignes.length} ligne{lignes.length > 1 ? 's' : ''}
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {contenu}
     </div>
   );
 }
 
 /** Badge de statut coloré, cohérent entre les pages. */
-export function BadgeStatut({ statut }: { statut?: string | null }) {
+export function BadgeStatut({ statut }: Readonly<{ statut?: string | null }>) {
   if (!statut) return <span style={{ color: '#98a2b3' }}>—</span>;
   const couleurs: Record<string, { fond: string; texte: string }> = {
     ACTIVE: { fond: '#ecfdf3', texte: '#027a48' },
