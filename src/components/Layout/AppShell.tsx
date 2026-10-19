@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { NotificationsProvider } from './NotificationsProvider';
-import { Sprout, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import logoHaivoly from '../../assets/logo-haivoly.png';
 
 export function AppShell() {
   const { t } = useTranslation();
@@ -69,9 +70,9 @@ export function AppShell() {
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 12px', borderBottom: '1px solid rgba(255,255,255,.06)', background: 'rgba(255,255,255,.03)' }}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center', color: 'white', fontWeight: 900 }}>
-                <span style={{ width: 36, height: 36, borderRadius: 12, background: 'linear-gradient(135deg,#2E7D32,#81C784)', display: 'grid', placeItems: 'center' }}>
-                  <Sprout size={16} color="white" />
-                </span>
+                <div className="brand-mark brand-mark--logo" style={{ width: 36, height: 36 }} aria-hidden>
+                  <img className="brand-logo" src={logoHaivoly} alt="" />
+                </div>
                 Haivoly
               </div>
               <button className="icon-btn" onClick={() => setDrawerOpen(false)} aria-label={t('commun.actions.fermerMenu')} style={{ background: 'rgba(255,255,255,.08)', borderColor: 'rgba(255,255,255,.12)', color: 'white' }}>
