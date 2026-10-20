@@ -6,6 +6,7 @@ import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, formateDate, formateNombre, type Colonne } from '../components/ui/TableauDonnees';
 import { formaterDevise, formaterDateHeure } from '../i18n';
 import { PanneauDetail } from '../components/ui/PanneauDetail';
+import { CompteurPhotos, GaleriePhotos } from '../components/ui/GaleriePhotos';
 import type { Recolte } from '../types';
 
 export function Recoltes() {
@@ -61,6 +62,7 @@ export function Recoltes() {
     { cle: 'prix', entete: t('commun.colonnes.prix'), rendu: (r) => formateNombre(r.prixVente) },
     { cle: 'cout', entete: t('commun.colonnes.cout'), rendu: (r) => formateNombre(r.coutRecolte as unknown as number) },
     { cle: 'description', entete: t('commun.colonnes.description'), rendu: (r) => r.description || '—' },
+    { cle: 'photos', entete: t('detail.photos'), rendu: (r) => <CompteurPhotos photos={r.photos} /> },
     {
       cle: 'actions',
       entete: t('commun.colonnes.actions'),
@@ -145,6 +147,7 @@ export function Recoltes() {
                     { libelle: t('commun.colonnes.date'), valeur: formateDate(detail.dateRecolte) },
                     { libelle: t('commun.colonnes.quantite'), valeur: formateNombre(detail.quantite, detail.unite) },
                     { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                    { libelle: t('detail.photos'), valeur: <GaleriePhotos photos={detail.photos} />, large: true },
                   ],
                 },
                 {

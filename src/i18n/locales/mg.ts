@@ -408,6 +408,11 @@ const mg: Traductions = {
     identifiant: 'Laharana',
     metadata: 'Angona fanampiny',
     pointsGps: 'Teboka GPS',
+    photos: 'Sary',
+    photoJointe: 'Sary miaraka',
+    ouvrirImage: 'Sokafy ny sary',
+    nombrePhotos_one: 'Sary {{count}}',
+    nombrePhotos_other: 'Sary {{count}}',
   },
   langue: {
     titre: 'Fiteny',

@@ -5,6 +5,7 @@ import { agregeObservations } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, formateDate, type Colonne } from '../components/ui/TableauDonnees';
 import { PanneauDetail } from '../components/ui/PanneauDetail';
+import { CompteurPhotos, GaleriePhotos } from '../components/ui/GaleriePhotos';
 import { formaterDateHeure } from '../i18n';
 import type { Observation } from '../types';
 
@@ -51,6 +52,7 @@ export function Observations() {
     { cle: 'description', entete: t('commun.colonnes.description'), rendu: (o) => <span style={{ whiteSpace: 'pre-wrap' }}>{o.description}</span> },
     { cle: 'culture', entete: t('commun.colonnes.culture'), rendu: (o) => o.cultureNom || '—' },
     { cle: 'date', entete: t('commun.colonnes.date'), rendu: (o) => formateDate(o.date) },
+    { cle: 'photos', entete: t('detail.photos'), rendu: (o) => <CompteurPhotos photos={o.photos} /> },
     { cle: 'modifie', entete: t('commun.colonnes.modifieeLe'), rendu: (o) => formateDate(o.modifieA) },
     {
       cle: 'actions',
@@ -117,6 +119,7 @@ export function Observations() {
                     { libelle: t('commun.colonnes.culture'), valeur: detail.cultureNom },
                     { libelle: t('commun.colonnes.date'), valeur: formateDate(detail.date) },
                     { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                    { libelle: t('detail.photos'), valeur: <GaleriePhotos photos={detail.photos} />, large: true },
                   ],
                 },
                 {

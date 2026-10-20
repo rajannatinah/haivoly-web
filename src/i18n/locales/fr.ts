@@ -406,6 +406,11 @@ const fr = {
     identifiant: 'Identifiant',
     metadata: 'Métadonnées',
     pointsGps: 'Points GPS',
+    photos: 'Photos',
+    photoJointe: 'Photo jointe',
+    ouvrirImage: 'Ouvrir la photo',
+    nombrePhotos_one: '{{count}} photo',
+    nombrePhotos_other: '{{count}} photos',
   },
   langue: {
     titre: 'Langue',

@@ -409,6 +409,11 @@ const en: Traductions = {
     identifiant: 'Identifier',
     metadata: 'Metadata',
     pointsGps: 'GPS points',
+    photos: 'Photos',
+    photoJointe: 'Attached photo',
+    ouvrirImage: 'Open photo',
+    nombrePhotos_one: '{{count}} photo',
+    nombrePhotos_other: '{{count}} photos',
   },
   langue: {
     titre: 'Language',
