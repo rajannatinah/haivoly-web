@@ -129,6 +129,15 @@ export interface Culture {
   modifieA?: string;
 }
 
+/** Photo jointe à une intervention, une observation ou une récolte. */
+export interface Photo {
+  id: string;
+  /** URL relative `/uploads/<dossier>/<fichier>` renvoyée par le serveur. */
+  url: string;
+  dateAjout?: string;
+  description?: string | null;
+}
+
 export interface Intervention {
   id: string;
   type: TypeIntervention | string;
@@ -142,6 +151,7 @@ export interface Intervention {
   cultureId?: string;
   /** Ajoute par l'agregation cote web, absent du payload backend. */
   cultureNom?: string;
+  photos?: Photo[];
   creeA?: string;
   modifieA?: string;
 }
@@ -153,6 +163,7 @@ export interface Observation {
   cultureId?: string;
   /** Ajoute par l'agregation cote web, absent du payload backend. */
   cultureNom?: string;
+  photos?: Photo[];
   modifieA?: string;
 }
 
@@ -167,6 +178,7 @@ export interface Recolte {
   coutRecolte?: number | null;
   cultureId?: string;
   culture?: Culture | null;
+  photos?: Photo[];
   creeA?: string;
   modifieA?: string;
 }

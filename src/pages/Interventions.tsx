@@ -5,6 +5,7 @@ import { agregeInterventions } from '../services/api';
 import { messageErreur } from '../components/ui/ErrorState';
 import { TableauDonnees, formateDate, formateNombre, type Colonne } from '../components/ui/TableauDonnees';
 import { PanneauDetail } from '../components/ui/PanneauDetail';
+import { CompteurPhotos, GaleriePhotos } from '../components/ui/GaleriePhotos';
 import { formaterDateHeure } from '../i18n';
 import type { Intervention } from '../types';
 
@@ -18,6 +19,31 @@ const TYPES_INTERVENTION = [
   'INSPECTION',
   'AUTRE',
 ] as const;
+
+function renduCompteurPhotos(i: Intervention) {
+  return <CompteurPhotos photos={i.photos} />;
+}
+
+function BoutonDetail({
+  intervention,
+  onDetail,
+  texte,
+}: Readonly<{
+  intervention: Intervention;
+  onDetail: (intervention: Intervention) => void;
+  texte: string;
+}>) {
+  return (
+    <button
+      type="button"
+      className="btn btn-ghost btn-mini"
+      data-testid={`detail-${intervention.id}`}
+      onClick={() => onDetail(intervention)}
+    >
+      <Eye size={15} /> {texte}
+    </button>
+  );
+}
 
 export function Interventions() {
   const { t } = useTranslation();
@@ -69,17 +95,21 @@ export function Interventions() {
     { cle: 'quantite', entete: t('commun.colonnes.quantite'), rendu: (i) => formateNombre(i.quantite, i.unite) },
     { cle: 'cout', entete: t('commun.colonnes.cout'), rendu: (i) => formateNombre(i.cout) },
     { cle: 'date', entete: t('commun.colonnes.date'), rendu: (i) => formateDate(i.date) },
+    { cle: 'photos', entete: t('detail.photos'), rendu: renduCompteurPhotos },
     {
       cle: 'actions',
       entete: t('commun.colonnes.actions'),
       largeur: '1%',
       rendu: (i) => (
-        <button type="button" className="btn btn-ghost btn-mini" data-testid={`detail-${i.id}`} onClick={() => setDetail(i)}>
-          <Eye size={15} /> {t('commun.actions.details')}
-        </button>
+        <BoutonDetail intervention={i} onDetail={setDetail} texte={t('commun.actions.details')} />
       ),
     },
   ];
+
+  let sousTitreDetail: string | undefined;
+  if (detail) {
+    sousTitreDetail = [detail.type, detail.cultureNom].filter((valeur): valeur is string => Boolean(valeur)).join(' • ');
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -130,7 +160,7 @@ export function Interventions() {
         ouvert={detail !== null}
         onFermer={() => setDetail(null)}
         titre={t('detail.titreIntervention')}
-        sousTitre={detail ? `${detail.type}${detail.cultureNom ? ` • ${detail.cultureNom}` : ''}` : undefined}
+        sousTitre={sousTitreDetail}
         icone={<Wrench size={18} color="#2E7D32" />}
         idTest="detail-intervention"
         sections={
@@ -147,6 +177,7 @@ export function Interventions() {
                     { libelle: t('commun.colonnes.cout'), valeur: formateNombre(detail.cout) },
                     { libelle: t('commun.colonnes.date'), valeur: formateDate(detail.date) },
                     { libelle: t('commun.colonnes.description'), valeur: <span style={{ whiteSpace: 'pre-wrap' }}>{detail.description}</span>, large: true },
+                    { libelle: t('detail.photos'), valeur: <GaleriePhotos photos={detail.photos} />, large: true },
                   ],
                 },
                 {
