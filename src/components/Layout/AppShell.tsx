@@ -4,12 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { NotificationsProvider } from './NotificationsProvider';
+import { useUtilisateur } from './UserProvider';
 import { X } from 'lucide-react';
 import logoHaivoly from '../../assets/logo-haivoly.png';
 
 export function AppShell() {
   const { t } = useTranslation();
   const nav = useNavigate();
+  const { effacerUtilisateur } = useUtilisateur();
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem('haivoly_sidebar_collapsed') === '1';
@@ -21,8 +23,9 @@ export function AppShell() {
 
   const logout = useCallback(() => {
     localStorage.removeItem('haivoly_web_token');
+    effacerUtilisateur();
     nav('/login', { replace: true });
-  }, [nav]);
+  }, [effacerUtilisateur, nav]);
 
   const toggleCollapsed = useCallback(() => {
     setCollapsed((v) => {

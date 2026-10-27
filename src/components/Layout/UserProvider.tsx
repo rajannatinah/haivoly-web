@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { getMe } from '../../services/api';
@@ -7,13 +7,30 @@ import type { UtilisateurConnecte } from '../../services/api';
 interface ContexteUtilisateur {
   utilisateur: UtilisateurConnecte | null;
   chargement: boolean;
+  definirUtilisateur: (utilisateur: UtilisateurConnecte) => void;
+  effacerUtilisateur: () => void;
 }
 
-const Contexte = createContext<ContexteUtilisateur>({ utilisateur: null, chargement: true });
+const Contexte = createContext<ContexteUtilisateur>({
+  utilisateur: null,
+  chargement: true,
+  definirUtilisateur: () => undefined,
+  effacerUtilisateur: () => undefined,
+});
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [utilisateur, setUtilisateur] = useState<UtilisateurConnecte | null>(null);
   const [chargement, setChargement] = useState(true);
+
+  const definirUtilisateur = useCallback((compte: UtilisateurConnecte) => {
+    setUtilisateur(compte);
+    setChargement(false);
+  }, []);
+
+  const effacerUtilisateur = useCallback(() => {
+    setUtilisateur(null);
+    setChargement(false);
+  }, []);
 
   useEffect(() => {
     let actif = true;
@@ -39,7 +56,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <Contexte.Provider value={{ utilisateur, chargement }}>{children}</Contexte.Provider>;
+  return (
+    <Contexte.Provider value={{ utilisateur, chargement, definirUtilisateur, effacerUtilisateur }}>
+      {children}
+    </Contexte.Provider>
+  );
 }
 
 export function useUtilisateur(): ContexteUtilisateur {

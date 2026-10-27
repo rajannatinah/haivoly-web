@@ -237,12 +237,42 @@ export async function registerWeb(payload: RegisterPayload) {
 
 export async function loginWeb(email: string, password: string) {
   const res = await api.post('/auth/login', { email, password });
-  const corps = res.data as { data?: { access_token?: string; utilisateur?: unknown } };
+  const corps = res.data as {
+    data?: { access_token?: string; utilisateur?: Partial<UtilisateurConnecte> };
+  };
   const accessToken = corps?.data?.access_token;
-  if (!accessToken) {
+  const utilisateur = corps?.data?.utilisateur;
+  if (
+    !accessToken ||
+    !utilisateur?.id ||
+    !utilisateur.email ||
+    !utilisateur.role
+  ) {
     throw new Error(i18n.t('auth.reponseInattendue'));
   }
-  return { access_token: accessToken, utilisateur: corps.data?.utilisateur };
+  return {
+    access_token: accessToken,
+    utilisateur: {
+      id: utilisateur.id,
+      nom: utilisateur.nom ?? null,
+      prenom: utilisateur.prenom ?? null,
+      email: utilisateur.email,
+      role: utilisateur.role,
+      estVerifie: utilisateur.estVerifie ?? false,
+    },
+  };
+}
+
+export async function demanderReinitialisationMotDePasse(email: string): Promise<void> {
+  await api.post('/auth/forgot-password', { email });
+}
+
+export async function reinitialiserMotDePasse(
+  token: string,
+  newPassword: string,
+  confirmPassword: string,
+): Promise<void> {
+  await api.post('/auth/reset-password', { token, newPassword, confirmPassword });
 }
 
 export interface UtilisateurConnecte {
