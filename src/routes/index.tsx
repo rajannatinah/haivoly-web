@@ -25,11 +25,12 @@ function AuthOutlet() {
 
 export const router = createBrowserRouter([
   {
-    // Les deux URL partagent le même écran et conservent ses champs en mémoire.
+    // Les URL d'authentification partagent le même écran.
     element: <AuthOutlet />,
     children: [
       { path: 'login', element: <Login /> },
       { path: 'register', element: <Register /> },
+      { path: 'reset-password', element: <Login /> },
     ],
   },
   {

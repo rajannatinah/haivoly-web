@@ -265,6 +265,42 @@
   line-height: 1.35;
 }
 
+.auth-switch__field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.auth-switch__field-label-row > label {
+  margin: 0;
+}
+
+.auth-switch__forgot-link {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #276c30;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  text-align: right;
+}
+
+.auth-switch__forgot-link:hover {
+  color: #164a20;
+  text-decoration: underline;
+}
+
+.auth-switch__forgot-link:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid #2e7d32;
+  outline-offset: 3px;
+}
+
 .auth-switch__required {
   margin-left: 2px;
   color: #c73d32;

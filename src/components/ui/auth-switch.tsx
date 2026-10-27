@@ -9,6 +9,7 @@ import {
   Eye,
   EyeOff,
   Globe2,
+  KeyRound,
   Loader2,
   Lock,
   LogIn,
@@ -19,7 +20,13 @@ import {
   UserPlus,
 } from 'lucide-react';
 
-import { loginWeb, registerWeb } from '../../services/api';
+import {
+  demanderReinitialisationMotDePasse,
+  loginWeb,
+  reinitialiserMotDePasse,
+  registerWeb,
+} from '../../services/api';
+import { useUtilisateur } from '../Layout/UserProvider';
 import './auth-switch.css';
 
 type SignupRole = 'PROPRIETAIRE' | 'AGRICULTEUR';
@@ -62,13 +69,22 @@ export default function AuthSwitch() {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const { definirUtilisateur } = useUtilisateur();
   const isSignUp = location.pathname.replace(/\/$/, '') === '/register';
+  const isResetPassword = location.pathname.replace(/\/$/, '') === '/reset-password';
+  const resetToken = new URLSearchParams(location.search).get('token');
+  const resetTokenMissing = isResetPassword && !resetToken;
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [loginSuccess, setLoginSuccess] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const [signup, setSignup] = useState<SignupForm>({
     nom: '',
@@ -93,9 +109,51 @@ export default function AuthSwitch() {
 
   const switchMode = (nextIsSignUp: boolean) => {
     setLoginError('');
+    setLoginSuccess('');
+    setIsForgotPassword(false);
     setSignupError('');
     if (nextIsSignUp) setSignupSuccess('');
     void navigate(nextIsSignUp ? '/register' : '/login');
+  };
+
+  const submitPasswordRecovery = async (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoginError('');
+    setLoginSuccess('');
+    setIsUpdatingPassword(true);
+
+    try {
+      if (isResetPassword) {
+        if (!resetToken) {
+          setLoginError(t('auth.lienReinitialisationInvalide'));
+          return;
+        }
+        if (newPassword !== confirmNewPassword) {
+          setLoginError(t('auth.mdpIncoherent'));
+          return;
+        }
+        if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) ||
+            !/[a-z]/.test(newPassword) || !/\d/.test(newPassword)) {
+          setLoginError(t('auth.mdpPolitique'));
+          return;
+        }
+
+        await reinitialiserMotDePasse(resetToken, newPassword, confirmNewPassword);
+        setLoginSuccess(t('auth.reinitialisationReussie'));
+        setNewPassword('');
+        setConfirmNewPassword('');
+      } else {
+        await demanderReinitialisationMotDePasse(loginEmail.trim().toLowerCase());
+        setLoginSuccess(t('auth.demandeReinitialisationEnvoyee'));
+      }
+    } catch (error: unknown) {
+      setLoginError(
+        messageFromError(error) ||
+          (isResetPassword ? t('auth.erreurReinitialisation') : t('auth.erreurDemandeReinitialisation')),
+      );
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const submitLogin = async (event: SyntheticEvent<HTMLFormElement>) => {
@@ -106,6 +164,7 @@ export default function AuthSwitch() {
     try {
       const response = await loginWeb(loginEmail.trim().toLowerCase(), loginPassword);
       localStorage.setItem('haivoly_web_token', response.access_token);
+      definirUtilisateur(response.utilisateur);
       void navigate('/', { replace: true });
     } catch (error: unknown) {
       setLoginError(messageFromError(error) || t('auth.identifiantsInvalides'));
@@ -164,85 +223,256 @@ export default function AuthSwitch() {
       >
         <div className="auth-switch__forms-container">
           <div className="auth-switch__signin-signup">
-            {/* ── LOGIN FORM (unchanged) ── */}
             <form
               className="auth-switch__form auth-switch__form--sign-in"
-              onSubmit={submitLogin}
+              onSubmit={isForgotPassword || isResetPassword ? submitPasswordRecovery : submitLogin}
               aria-hidden={isSignUp}
             >
               <div className="auth-switch__form-content">
-                <h1 className="auth-switch__title">{t('auth.formTitre')}</h1>
-                <p className="auth-switch__form-description">{t('auth.formSousTitre')}</p>
+                <h1 className="auth-switch__title">
+                  {isResetPassword
+                    ? t('auth.reinitialiserMotDePasse')
+                    : isForgotPassword
+                      ? t('auth.motDePasseOublie')
+                      : t('auth.formTitre')}
+                </h1>
+                <p className="auth-switch__form-description">
+                  {isResetPassword
+                    ? t('auth.reinitialiserMotDePasseSousTitre')
+                    : isForgotPassword
+                      ? t('auth.motDePasseOublieSousTitre')
+                      : t('auth.formSousTitre')}
+                </p>
 
-                {loginError && (
+                {(loginError || (resetTokenMissing && t('auth.lienReinitialisationInvalide'))) && (
                   <div className="auth-switch__notice auth-switch__notice--error" role="alert">
                     <AlertCircle size={18} aria-hidden="true" />
-                    <span>{loginError}</span>
+                    <span>{loginError || t('auth.lienReinitialisationInvalide')}</span>
                   </div>
                 )}
 
-                <div className="auth-switch__field">
-                  <label htmlFor="haivoly-login-email">{t('auth.email')}</label>
-                  <div className="auth-switch__input-wrap">
-                    <Mail size={18} aria-hidden="true" />
-                    <input
-                      id="haivoly-login-email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      inputMode="email"
-                      value={loginEmail}
-                      onChange={(event) => setLoginEmail(event.target.value)}
-                      placeholder="admin@haivoly.mg"
-                      required
-                      disabled={isLoggingIn}
-                    />
-                  </div>
-                </div>
+                {loginSuccess && (
+                  <output className="auth-switch__notice auth-switch__notice--success" role="status">
+                    <CheckCircle2 size={18} aria-hidden="true" />
+                    <span>{loginSuccess}</span>
+                  </output>
+                )}
 
-                <div className="auth-switch__field">
-                  <label htmlFor="haivoly-login-password">{t('auth.motDePasse')}</label>
-                  <div className="auth-switch__input-wrap">
-                    <Lock size={18} aria-hidden="true" />
-                    <input
-                      id="haivoly-login-password"
-                      name="password"
-                      type={showLoginPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      value={loginPassword}
-                      onChange={(event) => setLoginPassword(event.target.value)}
-                      placeholder="••••••••"
-                      required
-                      disabled={isLoggingIn}
-                    />
-                    <button
-                      className="auth-switch__reveal"
-                      type="button"
-                      onClick={() => setShowLoginPassword((visible) => !visible)}
-                      aria-label={t(showLoginPassword ? 'auth.masquerMotDePasse' : 'auth.afficherMotDePasse')}
-                      disabled={isLoggingIn}
-                    >
-                      {showLoginPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                {isResetPassword ? (
+                  <>
+                    {!resetTokenMissing && !loginSuccess && (
+                      <>
+                        <div className="auth-switch__field">
+                          <label htmlFor="haivoly-reset-password">{t('auth.nouveauMotDePasse')}</label>
+                          <div className="auth-switch__input-wrap">
+                            <Lock size={18} aria-hidden="true" />
+                            <input
+                              id="haivoly-reset-password"
+                              name="newPassword"
+                              type="password"
+                              autoComplete="new-password"
+                              value={newPassword}
+                              onChange={(event) => setNewPassword(event.target.value)}
+                              minLength={8}
+                              required
+                              disabled={isUpdatingPassword}
+                            />
+                          </div>
+                        </div>
+                        <div className="auth-switch__field">
+                          <label htmlFor="haivoly-reset-confirm-password">{t('auth.confirmerMotDePasse')}</label>
+                          <div className="auth-switch__input-wrap">
+                            <Lock size={18} aria-hidden="true" />
+                            <input
+                              id="haivoly-reset-confirm-password"
+                              name="confirmPassword"
+                              type="password"
+                              autoComplete="new-password"
+                              value={confirmNewPassword}
+                              onChange={(event) => setConfirmNewPassword(event.target.value)}
+                              minLength={8}
+                              required
+                              disabled={isUpdatingPassword}
+                            />
+                          </div>
+                        </div>
+                        <p className="auth-switch__password-hint">{t('auth.mdpPolitique')}</p>
+                      </>
+                    )}
+                    {loginSuccess ? (
+                      <p className="auth-switch__form-footnote">
+                        <button type="button" onClick={() => switchMode(false)}>
+                          {t('auth.retourConnexion')}
+                        </button>
+                      </p>
+                    ) : resetTokenMissing ? (
+                      <p className="auth-switch__form-footnote">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsForgotPassword(true);
+                            setLoginError('');
+                            void navigate('/login');
+                          }}
+                        >
+                          {t('auth.motDePasseOublie')}
+                        </button>
+                      </p>
+                    ) : (
+                      <button className="auth-switch__submit" type="submit" disabled={isUpdatingPassword}>
+                        {isUpdatingPassword ? (
+                          <Loader2 className="auth-switch__spinner" size={18} aria-hidden="true" />
+                        ) : (
+                          <KeyRound size={18} aria-hidden="true" />
+                        )}
+                        <span>
+                          {isUpdatingPassword
+                            ? t('commun.actions.patientez')
+                            : t('auth.enregistrerNouveauMotDePasse')}
+                        </span>
+                      </button>
+                    )}
+                    {!resetTokenMissing && !loginSuccess && (
+                      <p className="auth-switch__form-footnote">
+                        <button
+                            type="button"
+                            onClick={() => {
+                              setIsForgotPassword(true);
+                              setLoginError('');
+                              void navigate('/login');
+                            }}
+                        >
+                            {t('auth.motDePasseOublie')}
+                        </button>
+                      </p>
+                    )}
+                  </>
+                ) : isForgotPassword ? (
+                  <>
+                    <div className="auth-switch__field">
+                      <label htmlFor="haivoly-login-email">{t('auth.email')}</label>
+                      <div className="auth-switch__input-wrap">
+                        <Mail size={18} aria-hidden="true" />
+                        <input
+                          id="haivoly-login-email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          inputMode="email"
+                          value={loginEmail}
+                          onChange={(event) => setLoginEmail(event.target.value)}
+                          placeholder="admin@haivoly.mg"
+                          required
+                          disabled={isUpdatingPassword}
+                        />
+                      </div>
+                    </div>
+                    {!loginSuccess && (
+                      <button className="auth-switch__submit" type="submit" disabled={isUpdatingPassword}>
+                        {isUpdatingPassword ? (
+                          <Loader2 className="auth-switch__spinner" size={18} aria-hidden="true" />
+                        ) : (
+                          <Mail size={18} aria-hidden="true" />
+                        )}
+                        <span>
+                          {isUpdatingPassword
+                            ? t('commun.actions.patientez')
+                            : t('auth.envoyerLienReinitialisation')}
+                        </span>
+                      </button>
+                    )}
+                    <p className="auth-switch__form-footnote">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsForgotPassword(false);
+                          setLoginError('');
+                          setLoginSuccess('');
+                        }}
+                      >
+                        {t('auth.retourConnexion')}
+                      </button>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="auth-switch__field">
+                      <label htmlFor="haivoly-login-email">{t('auth.email')}</label>
+                      <div className="auth-switch__input-wrap">
+                        <Mail size={18} aria-hidden="true" />
+                        <input
+                          id="haivoly-login-email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          inputMode="email"
+                          value={loginEmail}
+                          onChange={(event) => setLoginEmail(event.target.value)}
+                          placeholder="admin@haivoly.mg"
+                          required
+                          disabled={isLoggingIn}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="auth-switch__field">
+                      <div className="auth-switch__field-label-row">
+                        <label htmlFor="haivoly-login-password">{t('auth.motDePasse')}</label>
+                        <button
+                          className="auth-switch__forgot-link"
+                          type="button"
+                          onClick={() => {
+                            setIsForgotPassword(true);
+                            setLoginError('');
+                            setLoginSuccess('');
+                          }}
+                        >
+                          {t('auth.motDePasseOublie')}
+                        </button>
+                      </div>
+                      <div className="auth-switch__input-wrap">
+                        <Lock size={18} aria-hidden="true" />
+                        <input
+                          id="haivoly-login-password"
+                          name="password"
+                          type={showLoginPassword ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          value={loginPassword}
+                          onChange={(event) => setLoginPassword(event.target.value)}
+                          placeholder="••••••••"
+                          required
+                          disabled={isLoggingIn}
+                        />
+                        <button
+                          className="auth-switch__reveal"
+                          type="button"
+                          onClick={() => setShowLoginPassword((visible) => !visible)}
+                          aria-label={t(showLoginPassword ? 'auth.masquerMotDePasse' : 'auth.afficherMotDePasse')}
+                          disabled={isLoggingIn}
+                        >
+                          {showLoginPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button className="auth-switch__submit" type="submit" disabled={isLoggingIn}>
+                      {isLoggingIn ? (
+                        <Loader2 className="auth-switch__spinner" size={18} aria-hidden="true" />
+                      ) : (
+                        <LogIn size={18} aria-hidden="true" />
+                      )}
+                      <span>{isLoggingIn ? t('auth.connexion') : t('auth.seConnecter')}</span>
+                      {!isLoggingIn && <ArrowRight size={17} aria-hidden="true" />}
                     </button>
-                  </div>
-                </div>
 
-                <button className="auth-switch__submit" type="submit" disabled={isLoggingIn}>
-                  {isLoggingIn ? (
-                    <Loader2 className="auth-switch__spinner" size={18} aria-hidden="true" />
-                  ) : (
-                    <LogIn size={18} aria-hidden="true" />
-                  )}
-                  <span>{isLoggingIn ? t('auth.connexion') : t('auth.seConnecter')}</span>
-                  {!isLoggingIn && <ArrowRight size={17} aria-hidden="true" />}
-                </button>
-
-                <p className="auth-switch__form-footnote">
-                  {t('auth.pasEncoreCompte')}{' '}
-                  <button type="button" onClick={() => switchMode(true)}>
-                    {t('auth.sInscrire')}
-                  </button>
-                </p>
+                    <p className="auth-switch__form-footnote">
+                      {t('auth.pasEncoreCompte')}{' '}
+                      <button type="button" onClick={() => switchMode(true)}>
+                        {t('auth.sInscrire')}
+                      </button>
+                    </p>
+                  </>
+                )}
               </div>
             </form>
 
